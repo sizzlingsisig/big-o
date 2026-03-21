@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PlayerComplexity" format=3 uid="uid://dsq62bgi4q4j5"]
+
+[ext_resource type="Script" uid="uid://ip664cgmviuy" path="res://scripts/player_complexity.gd" id="1_x5"]
+
+[resource]
+script = ExtResource("1_x5")
+tier_name = "O(log n)"
+animation_name = "logarithmic"
+color = Color(0, 0.8, 1, 1)
+speed = 180.0
+inertia = 0.1
+input_lag = 0.02
+collider_size = Vector2(45, 36)
+collider_offset = Vector2(-2, 10)
+scale = 0.8

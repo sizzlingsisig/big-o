@@ -1,0 +1,205 @@
+[gd_scene format=3 uid="uid://bgb13aasg840w"]
+
+[ext_resource type="Script" uid="uid://dvgdtqyshw4mo" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="Texture2D" uid="uid://7x7yqnr8wtff" path="res://Untitled design (5).png" id="2_qhqgy"]
+[ext_resource type="Script" uid="uid://d227oubl5x6pu" path="res://scripts/complexity_manager.gd" id="3_qlg0r"]
+[ext_resource type="Script" uid="uid://dc1ewy7asj25l" path="res://scripts/visuals_component.gd" id="4_tuyoq"]
+[ext_resource type="Script" uid="uid://dfhntrnnknlv7" path="res://scripts/movement_component.gd" id="5_fjrip"]
+[ext_resource type="Script" uid="uid://ip664cgmviuy" path="res://scripts/player_complexity.gd" id="6_complexity"]
+[ext_resource type="Resource" uid="uid://cplisklusobv2" path="res://resources/player_complexity/exponential.tres" id="7_exp"]
+[ext_resource type="Resource" uid="uid://dr0qbmmgsgv6s" path="res://resources/player_complexity/polynomial.tres" id="8_poly"]
+[ext_resource type="Resource" uid="uid://5b20ti5ctpdw" path="res://resources/player_complexity/linear.tres" id="9_lin"]
+[ext_resource type="Resource" uid="uid://qcljf1e6b4q7" path="res://resources/player_complexity/linearithmic.tres" id="10_linithm"]
+[ext_resource type="Resource" uid="uid://dsq62bgi4q4j5" path="res://resources/player_complexity/logarithmic.tres" id="11_log"]
+[ext_resource type="Resource" uid="uid://o88o3bfnf1h6" path="res://resources/player_complexity/constant.tres" id="12_const"]
+[ext_resource type="PackedScene" uid="uid://dj89u33k7h40w" path="res://scenes/sub_thread.tscn" id="13_subthread"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x5gf8"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(0, 600, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_42hdn"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(121, 600, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f50pn"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(0, 0, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ij6vw"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(121, 0, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ghijl"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(242, 0, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_44cfe"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(363, 0, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yi2kj"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(0, 360, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cibgq"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(121, 360, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mfdas"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(242, 360, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ws0vm"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(0, 240, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rhr3r"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(121, 240, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t53lx"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(242, 240, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8nwgm"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(0, 480, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7pl6r"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(121, 480, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2brh"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(0, 120, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dn4c7"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(121, 120, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4vejd"]
+atlas = ExtResource("2_qhqgy")
+region = Rect2(242, 120, 121, 120)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lhvu3"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x5gf8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_42hdn")
+}],
+"loop": true,
+"name": &"constant",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f50pn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ij6vw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ghijl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_44cfe")
+}],
+"loop": true,
+"name": &"exponential",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yi2kj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cibgq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mfdas")
+}],
+"loop": true,
+"name": &"linear",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ws0vm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rhr3r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t53lx")
+}],
+"loop": true,
+"name": &"linearithmic",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8nwgm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7pl6r")
+}],
+"loop": true,
+"name": &"logarithmic",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g2brh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dn4c7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4vejd")
+}],
+"loop": true,
+"name": &"polynomial",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g2els"]
+size = Vector2(81, 70)
+
+[node name="player" type="CharacterBody2D" unique_id=54899737 node_paths=PackedStringArray("movement", "complexity", "visuals")]
+script = ExtResource("1_g2els")
+movement = NodePath("MovementComponent")
+complexity = NodePath("ComplexityManager")
+visuals = NodePath("VisualsComponent")
+sub_thread_scene = ExtResource("13_subthread")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=324693883]
+sprite_frames = SubResource("SpriteFrames_lhvu3")
+animation = &"exponential"
+autoplay = "exponential"
+frame_progress = 0.8658835
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=748213972]
+position = Vector2(-2, -3)
+shape = SubResource("RectangleShape2D_g2els")
+
+[node name="ComplexityManager" type="Node" parent="." unique_id=1185156960]
+script = ExtResource("3_qlg0r")
+complexity_tiers = Array[ExtResource("6_complexity")]([ExtResource("7_exp"), ExtResource("8_poly"), ExtResource("10_linithm"), ExtResource("9_lin"), ExtResource("11_log"), ExtResource("12_const")])
+
+[node name="VisualsComponent" type="Node" parent="." unique_id=887963291 node_paths=PackedStringArray("sprite", "collision_shape")]
+script = ExtResource("4_tuyoq")
+sprite = NodePath("../AnimatedSprite2D")
+collision_shape = NodePath("../CollisionShape2D")
+
+[node name="MovementComponent" type="Node" parent="." unique_id=1622289911]
+script = ExtResource("5_fjrip")
+metadata/_custom_type_script = "uid://dfhntrnnknlv7"
+
+[node name="SplitCooldown" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="SplitCooldown" to="." method="_on_split_cooldown_timeout"]

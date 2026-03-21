@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="PlayerComplexity" format=3 uid="uid://o88o3bfnf1h6"]
+
+[ext_resource type="Script" uid="uid://ip664cgmviuy" path="res://scripts/player_complexity.gd" id="1_x6"]
+
+[resource]
+script = ExtResource("1_x6")
+tier_name = "O(1)"
+animation_name = "constant"
+speed = 200.0
+inertia = 0.0
+collider_size = Vector2(22, 22)
+collider_offset = Vector2(-2, 10)
+scale = 0.7

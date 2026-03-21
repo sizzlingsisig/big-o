@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PlayerComplexity" format=3 uid="uid://cplisklusobv2"]
+
+[ext_resource type="Script" uid="uid://ip664cgmviuy" path="res://scripts/player_complexity.gd" id="1_x1"]
+
+[resource]
+script = ExtResource("1_x1")
+tier_name = "O(2^n)"
+animation_name = "exponential"
+color = Color(1, 0, 0, 1)
+speed = 100.0
+inertia = 0.9
+input_lag = 0.3
+collider_size = Vector2(96, 96)
+collider_offset = Vector2(-2, -3)
+scale = 1.2

@@ -1,0 +1,170 @@
+[gd_scene format=3 uid="uid://dkaau33k7h40w"]
+
+[ext_resource type="Script" path="res://scripts/sub_thread.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://7x7yqnr8wtff" path="res://Untitled design (5).png" id="2_atlas"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x5gf8"]
+atlas = ExtResource("2_atlas")
+region = Rect2(0, 600, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_42hdn"]
+atlas = ExtResource("2_atlas")
+region = Rect2(121, 600, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f50pn"]
+atlas = ExtResource("2_atlas")
+region = Rect2(0, 0, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ij6vw"]
+atlas = ExtResource("2_atlas")
+region = Rect2(121, 0, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ghijl"]
+atlas = ExtResource("2_atlas")
+region = Rect2(242, 0, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_44cfe"]
+atlas = ExtResource("2_atlas")
+region = Rect2(363, 0, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yi2kj"]
+atlas = ExtResource("2_atlas")
+region = Rect2(0, 360, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cibgq"]
+atlas = ExtResource("2_atlas")
+region = Rect2(121, 360, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mfdas"]
+atlas = ExtResource("2_atlas")
+region = Rect2(242, 360, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ws0vm"]
+atlas = ExtResource("2_atlas")
+region = Rect2(0, 240, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rhr3r"]
+atlas = ExtResource("2_atlas")
+region = Rect2(121, 240, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t53lx"]
+atlas = ExtResource("2_atlas")
+region = Rect2(242, 240, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8nwgm"]
+atlas = ExtResource("2_atlas")
+region = Rect2(0, 480, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7pl6r"]
+atlas = ExtResource("2_atlas")
+region = Rect2(121, 480, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2brh"]
+atlas = ExtResource("2_atlas")
+region = Rect2(0, 120, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dn4c7"]
+atlas = ExtResource("2_atlas")
+region = Rect2(121, 120, 121, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4vejd"]
+atlas = ExtResource("2_atlas")
+region = Rect2(242, 120, 121, 120)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_thread"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x5gf8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_42hdn")
+}],
+"loop": true,
+"name": &"constant",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f50pn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ij6vw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ghijl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_44cfe")
+}],
+"loop": true,
+"name": &"exponential",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yi2kj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cibgq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mfdas")
+}],
+"loop": true,
+"name": &"linear",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ws0vm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rhr3r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t53lx")
+}],
+"loop": true,
+"name": &"linearithmic",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8nwgm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7pl6r")
+}],
+"loop": true,
+"name": &"logarithmic",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g2brh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dn4c7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4vejd")
+}],
+"loop": true,
+"name": &"polynomial",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_thread"]
+
+[node name="SubThread" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 2
+script = ExtResource("1_script")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_thread")
+animation = &"exponential"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_thread")

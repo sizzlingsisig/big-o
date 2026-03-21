@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PlayerComplexity" format=3 uid="uid://dr0qbmmgsgv6s"]
+
+[ext_resource type="Script" uid="uid://ip664cgmviuy" path="res://scripts/player_complexity.gd" id="1_x2"]
+
+[resource]
+script = ExtResource("1_x2")
+tier_name = "O(n^2)"
+animation_name = "polynomial"
+color = Color(1, 0.5, 0, 1)
+speed = 120.0
+inertia = 0.7
+input_lag = 0.2
+collider_size = Vector2(80, 75)
+collider_offset = Vector2(-2, 0)
+scale = 1.1
