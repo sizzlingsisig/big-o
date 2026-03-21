@@ -45,7 +45,7 @@ A reverse-growth arcade "frenzy" where you play as a bloated, inefficient algori
 	* **Benefit:** Instantly dumps 20% of RAM heat (Process Flush).
 	* **Penalty:** The parent thread is forced into a *less efficient* (slower/heavier) Big O tier as "Zombie Overhead." Locked at $O(2^n)$.
 * **Brainrot Shaders:** Visual "Deep-Fry" filters, chromatic aberration, and screen shakes that intensify as the system nears a crash.
-* **The $O(1)$ Singularity:** Reaching the final tier triggers an automatic win sequence where the player deletes the entire screen.
+* **The $O(1)$ Singularitoy:** Reaching the final tier triggers an automatic win sequence where the player deletes the entire screen.
 
 ---
 
