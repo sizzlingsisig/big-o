@@ -8,7 +8,6 @@ extends Control
 @export var label_margin: float = 40.0 # Space between labels
 
 var _occupied_areas: Dictionary = {} # Label -> Rect2
-var _glitch_texts = ["SEGFAULT", "NULL_PTR", "MEM_LEAK", "STACK_OVR", "RACE_COND", "JIT_ERR", "CORE_DUMP", "OOM_KILL"]
 var _timer: float = 0.0
 
 @onready var font = preload("res://ByteBounce.ttf")
@@ -44,13 +43,17 @@ func _process(delta: float) -> void:
 		if randf() < glitch_chance * corruption_factor:
 			child.position = base_pos + Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * jitter_intensity * corruption_factor
 			child.modulate.a = randf_range(0.1, 0.3)
+			
+			# Change text occasionally
+			if randf() < 0.1:
+				child.text = BigOConstants.DEBT_LOGS.pick_random()
 		else:
 			# Return to base position and faintness
 			child.position = base_pos
 			child.modulate.a = move_toward(child.modulate.a, 0.15, 0.01)
 
 func _spawn_random_label() -> void:
-	var text = _glitch_texts.pick_random()
+	var text = BigOConstants.DEBT_LOGS.pick_random()
 	var font_size = randi_range(48, 72)
 	var label = _create_valid_label(text, font_size)
 	if label:

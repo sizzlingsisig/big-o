@@ -5,13 +5,6 @@ extends CanvasLayer
 @onready var shader_rect: ColorRect = $ShaderRect
 @onready var labels_control: Control = $Labels
 
-var _base_colors = [
-	Color(0.04, 0.12, 0.06), # Dark Green
-	Color(0.04, 0.06, 0.15), # Deep Blue
-	Color(0.12, 0.04, 0.12), # Dark Purple
-	Color(0.15, 0.04, 0.04)  # Dark Red
-]
-
 var _progression_manager: Node = null
 
 func _process(_delta: float) -> void:
@@ -41,8 +34,9 @@ func _process(_delta: float) -> void:
 
 func _on_milestone_reached(index: int) -> void:
 	# Cycle through colors based on milestone
-	var color_index = index % _base_colors.size()
-	var target_color = _base_colors[color_index]
+	var colors = BigOConstants.get_theme_colors()
+	var color_index = index % colors.size()
+	var target_color = colors[color_index]
 	
 	print("Background color shifting to: ", target_color)
 	
