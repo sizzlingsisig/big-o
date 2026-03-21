@@ -49,6 +49,21 @@ A reverse-growth arcade "frenzy" where you play as a bloated, inefficient algori
 
 ---
 
+## Technical Architecture
+* **Entity Component System (ECS) Hybrid:** 
+	* Entities use dedicated components (`MovementComponent`, `VisualsComponent`, `ComplexityManager`) for modular logic.
+	* Decoupled communication via Signals (e.g., `thread_forked` for spawning projectiles).
+* **Zero-Allocation Physics:**
+	* `MovementComponent` uses `PackedFloat64Array` and `PackedVector2Array` to track input history, ensuring zero garbage allocation during the critical physics loop.
+* **Event-Driven UI:**
+	* Managers (e.g., `BackgroundManager`) initialize connections in `_ready()` and react to signals, avoiding expensive per-frame polling.
+* **Scene Hierarchy:**
+	* `World` acts as the composition root.
+	* `Projectiles` container decouples spawned entities from their parents.
+	* `SectorManager` handles infinite grid generation.
+
+---
+
 ## Interface
 * **Input:** Mouse (Primary), Keyboard (Secondary).
 * **Controls:**
@@ -80,8 +95,8 @@ A reverse-growth arcade "frenzy" where you play as a bloated, inefficient algori
 **Platform:** Web (itch.io) / PC  
 **Audience:** CS Students, Indie gamers, Memers (Ages 15–30)
 
-* **Milestone 1: Logic Core** – Tier-switching system and scale-based movement logic. (0/0/00)
-* **Milestone 2: Debt AI** – Spaghetti Code "tether" physics and Swarm spawning. (0/0/00)
+* **Milestone 1: Logic Core** – Tier-switching system and scale-based movement logic. (Completed)
+* **Milestone 2: Debt AI** – Spaghetti Code "tether" physics and Swarm spawning. (In Progress)
 * **Milestone 3: Visual Identity** – RAM Gauge UI and "Deep-Fry" shader implementation. (0/0/00)
 * **Milestone 4: Polish** – Victory sequence at $O(1)$ and sound design. (0/0/00)
 
