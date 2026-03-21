@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://7x7yqnr8wtff"
-path="res://.godot/imported/Untitled design (5).png-e175a67b1d7581eb86baca2e5c7c1b73.ctex"
+uid="uid://boh14v3vflvv4"
+path="res://.godot/imported/heisenberg.png-edaa0dd8f45441e0300f338f44ae95da.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Untitled design (5).png"
-dest_files=["res://.godot/imported/Untitled design (5).png-e175a67b1d7581eb86baca2e5c7c1b73.ctex"]
+source_file="res://assets/sprites/heisenberg.png"
+dest_files=["res://.godot/imported/heisenberg.png-edaa0dd8f45441e0300f338f44ae95da.ctex"]
 
 [params]
 
