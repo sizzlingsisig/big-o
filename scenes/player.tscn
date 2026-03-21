@@ -202,4 +202,8 @@ metadata/_custom_type_script = "uid://dfhntrnnknlv7"
 [node name="SplitCooldown" type="Timer" parent="."]
 one_shot = true
 
+[node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_enabled = true
+position_smoothing_speed = 5.0
+
 [connection signal="timeout" from="SplitCooldown" to="." method="_on_split_cooldown_timeout"]

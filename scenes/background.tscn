@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://camn2nuuj6fs1"]
+
+[ext_resource type="Shader" uid="uid://cak5j68ubhw2i" path="res://shaders/matrix_background.gdshader" id="1_shader"]
+[ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://ByteBounce.ttf" id="2_font"]
+[ext_resource type="Script" uid="uid://uxdofvoj8jt5" path="res://scripts/background_glitcher.gd" id="3_script"]
+[ext_resource type="Script" path="res://scripts/background_manager.gd" id="4_script"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_matrix"]
+shader = ExtResource("1_shader")
+shader_parameter/base_color = Color(0.04, 0.12, 0.06, 1)
+shader_parameter/text_color = Color(0, 0.8, 0.3, 1)
+shader_parameter/scanline_speed = 0.05
+shader_parameter/scanline_count = 120.0
+shader_parameter/flicker_intensity = 0.01
+shader_parameter/jitter_intensity = 0.001
+shader_parameter/grid_size = 35.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_jougr"]
+
+[node name="BackgroundLayer" type="CanvasLayer" unique_id=1955430562]
+script = ExtResource("4_script")
+layer = -50
+
+[node name="ShaderRect" type="ColorRect" parent="." unique_id=219404308]
+material = SubResource("ShaderMaterial_matrix")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Labels" type="Control" parent="." unique_id=1383765445]
+modulate = Color(1, 1, 1, 0.4)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_script")
+jitter_intensity = 1.0
+spawn_interval = 0.5
