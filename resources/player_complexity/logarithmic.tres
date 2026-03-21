@@ -12,4 +12,3 @@ inertia = 0.1
 input_lag = 0.02
 collider_size = Vector2(45, 36)
 collider_offset = Vector2(-2, 10)
-scale = 0.8
