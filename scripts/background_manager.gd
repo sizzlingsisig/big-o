@@ -7,13 +7,22 @@ extends CanvasLayer
 
 var _progression_manager: Node = null
 
-func _process(_delta: float) -> void:
-	if not _progression_manager:
+func _ready() -> void:
+	_progression_manager = get_tree().get_first_node_in_group("progression_manager")
+	if _progression_manager:
+		_progression_manager.milestone_reached.connect(_on_milestone_reached)
+		print("BackgroundManager: Connected to ProgressionManager")
+	else:
+		# Fallback: Wait one frame in case of initialization order issues, then try again
+		await get_tree().process_frame
 		_progression_manager = get_tree().get_first_node_in_group("progression_manager")
 		if _progression_manager:
 			_progression_manager.milestone_reached.connect(_on_milestone_reached)
-			print("BackgroundManager: Connected to ProgressionManager")
+			print("BackgroundManager: Connected to ProgressionManager (delayed)")
+		else:
+			push_warning("BackgroundManager: ProgressionManager group not found.")
 
+func _process(_delta: float) -> void:
 	var camera = get_viewport().get_camera_2d()
 	if camera:
 		var camera_pos = camera.get_screen_center_position()

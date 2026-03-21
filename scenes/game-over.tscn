@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://dpxo8gapnumn3"]
+[gd_scene format=3 uid="uid://hjwjqqkxais5"]
 
-[ext_resource type="Texture2D" path="res://bsod.png" id="1_iwvu1"]
+[ext_resource type="Texture2D" uid="uid://7w1xk65ja453" path="res://bsod.png" id="1_iwvu1"]
 
 [node name="Bsod" type="Sprite2D" unique_id=2014343569]
 position = Vector2(1047, 448)

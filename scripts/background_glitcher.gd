@@ -10,7 +10,7 @@ extends Control
 var _occupied_areas: Dictionary = {} # Label -> Rect2
 var _timer: float = 0.0
 
-@onready var font = preload("res://ByteBounce.ttf")
+@onready var font = preload("res://assets/fonts/ByteBounce.ttf")
 
 func _ready() -> void:
 	pass

@@ -9,7 +9,8 @@ class_name MovementComponent
 ## The direction the player is currently facing or moving towards.
 var facing_direction: Vector2 = Vector2.RIGHT
 
-var _input_history: Array[Dictionary] = [] # Array of {time: float, pos: Vector2}
+var _input_history_time: PackedFloat64Array = []
+var _input_history_pos: PackedVector2Array = []
 
 func _ready() -> void:
 	if not parent:
@@ -22,20 +23,23 @@ func process_movement(delta: float, target_pos: Vector2, current_complexity: Pla
 		
 	# 1. Store the current target position with a timestamp
 	var current_time: float = Time.get_ticks_msec() / 1000.0
-	_input_history.append({"time": current_time, "pos": target_pos})
+	_input_history_time.append(current_time)
+	_input_history_pos.append(target_pos)
 	
 	# 2. Find the delayed target position based on input_lag
 	var delayed_target: Vector2 = target_pos # Fallback
 	var lag_threshold: float = current_time - current_complexity.input_lag
 	
 	# Remove entries that are older than the lag threshold, except the most recent one we need
-	while _input_history.size() > 1 and _input_history[0].time < lag_threshold:
-		delayed_target = _input_history[0].pos
-		_input_history.remove_at(0)
+	while _input_history_time.size() > 1 and _input_history_time[0] < lag_threshold:
+		# Keep track of the last valid position before removing
+		delayed_target = _input_history_pos[0]
+		_input_history_time.remove_at(0)
+		_input_history_pos.remove_at(0)
 	
 	# If we still have a history, the first element is the closest to the lag target
-	if not _input_history.is_empty():
-		delayed_target = _input_history[0].pos
+	if not _input_history_pos.is_empty():
+		delayed_target = _input_history_pos[0]
 
 	var target_direction: Vector2 = (delayed_target - parent.global_position).normalized()
 	

@@ -9,6 +9,9 @@ class_name Player
 @export var complexity: ComplexityManager
 @export var visuals: VisualsComponent
 
+## Emitted when the player splits/forks a thread. The listener should add the thread to the scene tree.
+signal thread_forked(thread: SubThread)
+
 @export_category("The Fork")
 @export var sub_thread_scene: PackedScene
 @export var split_cooldown: float = 2.0
@@ -68,14 +71,24 @@ func _zombie_fork() -> void:
 		
 		# 3. Spawn the sub-thread (the child sent to its death)
 		var sub_thread = sub_thread_scene.instantiate() as SubThread
-		get_parent().add_child(sub_thread)
-		sub_thread.global_position = global_position
 		
 		# 4. Launch it forward in the direction the player is currently facing
 		var launch_dir: Vector2 = movement.facing_direction
 		sub_thread.setup(launch_dir, current_data)
 		
-		# 5. Launch the PARENT forward as well (The recoil/kickback)
+		# 5. Handle parenting
+		if thread_forked.get_connections().size() > 0:
+			# For decoupled spawning, we set position assuming the listener adds to World (0,0)
+			# or handles the transform correction.
+			sub_thread.global_position = global_position
+			thread_forked.emit(sub_thread)
+		else:
+			# Fallback: Add as sibling
+			get_parent().add_child(sub_thread)
+			# MUST set global_position AFTER adding to tree to account for parent transform
+			sub_thread.global_position = global_position
+		
+		# 6. Launch the PARENT forward as well (The recoil/kickback)
 		movement.apply_impulse(launch_dir, current_data.speed * 5.0)
 	else:
 		print("Cannot fork: System is already at maximum O(2^n) bloat!")

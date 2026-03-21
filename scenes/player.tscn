@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bgb13aasg840w"]
 
 [ext_resource type="Script" uid="uid://dvgdtqyshw4mo" path="res://scripts/player.gd" id="1_g2els"]
-[ext_resource type="Texture2D" uid="uid://7x7yqnr8wtff" path="res://Untitled design (5).png" id="2_qhqgy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player.png" id="2_qhqgy"]
 [ext_resource type="Script" uid="uid://d227oubl5x6pu" path="res://scripts/complexity_manager.gd" id="3_qlg0r"]
 [ext_resource type="Script" uid="uid://dc1ewy7asj25l" path="res://scripts/visuals_component.gd" id="4_tuyoq"]
 [ext_resource type="Script" uid="uid://dfhntrnnknlv7" path="res://scripts/movement_component.gd" id="5_fjrip"]
@@ -91,7 +91,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_42hdn")
 }],
-"loop": true,
+"loop": false,
 "name": &"constant",
 "speed": 5.0
 }, {
@@ -178,9 +178,8 @@ sub_thread_scene = ExtResource("13_subthread")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=324693883]
 sprite_frames = SubResource("SpriteFrames_lhvu3")
-animation = &"exponential"
+animation = &"constant"
 autoplay = "exponential"
-frame_progress = 0.8658835
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=748213972]
 position = Vector2(-2, -3)

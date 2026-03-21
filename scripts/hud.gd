@@ -16,7 +16,7 @@ func _on_sector_changed(coords: Vector2i) -> void:
 	# Create a temporary sector alert
 	var alert = Label.new()
 	alert.text = "MEM_BLOCK [" + str(coords.x) + ":" + str(coords.y) + "] LOADED"
-	alert.add_theme_font_override("font", preload("res://ByteBounce.ttf"))
+	alert.add_theme_font_override("font", preload("res://assets/fonts/ByteBounce.ttf"))
 	alert.add_theme_font_size_override("font_size", 40)
 	alert.add_theme_color_override("font_color", Color(1, 1, 1, 0.8))
 	
