@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://g1x2aja51bla"]
+
+[ext_resource type="Script" uid="uid://cb2v8u4u2u6dl" path="res://scripts/enemies/null_pointer.gd" id="1_np"]
+[ext_resource type="Script" uid="uid://gv6jy3b6mpkx" path="res://scripts/enemies/enemy_health_component.gd" id="2_health"]
+[ext_resource type="Texture2D" uid="uid://deulshglkqvwa" path="res://assets/sprites/enemies.png" id="3_f1wbn"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 30.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle1"]
+atlas = ExtResource("3_f1wbn")
+region = Rect2(0, 194, 160, 174)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle2"]
+atlas = ExtResource("3_f1wbn")
+region = Rect2(160, 194, 160, 174)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_opiue"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle2")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 4.0
+}]
+
+[node name="NullPointer" type="Area2D" unique_id=1244825643]
+position = Vector2(0, -2)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_np")
+speed = 120.0
+contact_damage = 0.0
+
+[node name="EnemyHealthComponent" type="Node" parent="." unique_id=98802476]
+script = ExtResource("2_health")
+max_health = 2.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1952535563]
+position = Vector2(0, 5)
+shape = SubResource("CircleShape2D_1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1029148672]
+position = Vector2(0, -5)
+sprite_frames = SubResource("SpriteFrames_opiue")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=556496015]
+rect = Rect2(-40, -40, 80, 80)

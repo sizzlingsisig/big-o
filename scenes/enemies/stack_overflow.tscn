@@ -1,0 +1,89 @@
+[gd_scene format=3 uid="uid://bclu28njdi0r0"]
+
+[ext_resource type="Script" uid="uid://cgtbg3itahlci" path="res://scripts/enemies/stack_overflow.gd" id="1_stack"]
+[ext_resource type="Script" uid="uid://gv6jy3b6mpkx" path="res://scripts/enemies/enemy_health_component.gd" id="2_health"]
+[ext_resource type="Texture2D" uid="uid://deulshglkqvwa" path="res://assets/sprites/enemies.png" id="3_46gm4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_approach1"]
+atlas = ExtResource("3_46gm4")
+region = Rect2(0, 422, 160, 146)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_approach2"]
+atlas = ExtResource("3_46gm4")
+region = Rect2(160, 422, 160, 146)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_crush1"]
+atlas = ExtResource("3_46gm4")
+region = Rect2(320, 422, 160, 146)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_crush2"]
+atlas = ExtResource("3_46gm4")
+region = Rect2(480, 422, 160, 146)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_retreat"]
+atlas = ExtResource("3_46gm4")
+region = Rect2(640, 422, 160, 146)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8pgn4"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_approach1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_approach2")
+}],
+"loop": true,
+"name": &"approach",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 0.3,
+"texture": SubResource("AtlasTexture_crush1")
+}, {
+"duration": 0.3,
+"texture": SubResource("AtlasTexture_crush2")
+}],
+"loop": true,
+"name": &"crush",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_retreat")
+}],
+"loop": true,
+"name": &"retreat",
+"speed": 2.0
+}]
+
+[node name="StackOverflow" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_stack")
+speed = 80.0
+contact_damage = 0.0
+ram_damage = 20.0
+
+[node name="EnemyHealthComponent" type="Node" parent="." unique_id=1349334993]
+script = ExtResource("2_health")
+max_health = 6.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=996408959]
+position = Vector2(-3, 3.5)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=582573401]
+position = Vector2(0, -5)
+sprite_frames = SubResource("SpriteFrames_8pgn4")
+animation = &"retreat"
+autoplay = "approach"
+frame_progress = 0.6489618
+
+[node name="BlockContainer" type="Node2D" parent="." unique_id=909994853]
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=1193102290]
+rect = Rect2(-80, -80, 160, 160)

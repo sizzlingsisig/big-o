@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://dvrcoa4xclbda"]
+
+[ext_resource type="Script" uid="uid://bxi0nym8meiuk" path="res://scripts/enemies/heisenberg.gd" id="1_heis"]
+[ext_resource type="Script" uid="uid://gv6jy3b6mpkx" path="res://scripts/enemies/enemy_health_component.gd" id="2_health"]
+[ext_resource type="Texture2D" uid="uid://boh14v3vflvv4" path="res://assets/sprites/heisenberg.png" id="3_5mrro"]
+[ext_resource type="Script" uid="uid://7i5x1jrf1oep" path="res://scripts/enemies/disrupt_effect.gd" id="3_effect"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 35.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gcyf0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_5mrro")
+}],
+"loop": true,
+"name": &"disrupt",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_5mrro")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[node name="Heisenberg" type="Area2D" unique_id=1074153606]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_heis")
+speed = 50.0
+contact_damage = 0.0
+ram_damage = 18.0
+
+[node name="EnemyHealthComponent" type="Node" parent="." unique_id=1172104185]
+script = ExtResource("2_health")
+max_health = 5.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1496564125]
+shape = SubResource("CircleShape2D_1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=393780734]
+position = Vector2(-4, -22)
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_gcyf0")
+animation = &"disrupt"
+autoplay = "idle"
+
+[node name="DisruptEffect" type="Node2D" parent="." unique_id=1492734531]
+script = ExtResource("3_effect")
+radius = 80.0
+duration = 0.8
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=1297981388]
+rect = Rect2(-60, -60, 120, 120)

@@ -1,0 +1,81 @@
+[gd_scene format=3 uid="uid://qro6ntfk8ax3"]
+
+[ext_resource type="Script" path="res://scripts/enemies/infinite_loop.gd" id="1_loop"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_health_component.gd" id="2_health"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies.png" id="3_o2ktb"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 30.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gravity"]
+radius = 150.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_orbit1"]
+atlas = ExtResource("3_o2ktb")
+region = Rect2(640, 224, 160, 164)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_orbit2"]
+atlas = ExtResource("3_o2ktb")
+region = Rect2(800, 224, 160, 164)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_orbit3"]
+atlas = ExtResource("3_o2ktb")
+region = Rect2(960, 224, 160, 164)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_orbit4"]
+atlas = ExtResource("3_o2ktb")
+region = Rect2(1120, 224, 160, 164)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_db0bl"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_orbit1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_orbit2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_orbit3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_orbit4")
+}],
+"loop": true,
+"name": &"orbit",
+"speed": 4.0
+}]
+
+[node name="InfiniteLoop" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_loop")
+speed = 0.0
+contact_damage = 0.0
+ram_damage = 15.0
+
+[node name="EnemyHealthComponent" type="Node" parent="."]
+script = ExtResource("2_health")
+max_health = 4.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(1, -2)
+sprite_frames = SubResource("SpriteFrames_db0bl")
+animation = &"orbit"
+autoplay = &"orbit"
+
+[node name="GravityWellVisual" type="Node2D" parent="."]
+
+[node name="GravityArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GravityArea"]
+shape = SubResource("CircleShape2D_gravity")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+position = Vector2(3, 3)
+rect = Rect2(-80, -80, 160, 160)
