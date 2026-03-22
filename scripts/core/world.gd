@@ -17,19 +17,19 @@ var _wave_in_progress: bool = false
 var _is_game_over: bool = false
 
 func _ready() -> void:
+	# Decoupled connections via Event Bus
+	GameEvents.enemy_spawned.connect(_on_enemy_spawned)
+	GameEvents.status_effect_applied.connect(_on_status_effect_applied)
+	GameEvents.ram_overflow.connect(_on_ram_overflow)
+	GameEvents.player_died.connect(_on_player_died)
+	
 	if player:
-		player.thread_forked.connect(_on_player_thread_forked)
-		enemy_spawner.set_player(player)
-		control_disruptor.set_player(player)
-		enemy_spawner.enemy_spawned.connect(_on_enemy_spawned)
-		enemy_spawner.wave_completed.connect(_on_wave_completed)
-		player.tree_exited.connect(_on_player_died)
+			enemy_spawner.set_player(player)
+			enemy_spawner.enemy_spawned.connect(func(e): GameEvents.enemy_spawned.emit(e))
+			enemy_spawner.wave_started.connect(func(w): GameEvents.wave_started.emit(w))
+			enemy_spawner.wave_completed.connect(func(w): GameEvents.wave_completed.emit(w))
 	else:
 		push_error("World: Player node not found!")
-	
-	var ram_meter = get_ram_meter()
-	if ram_meter:
-		ram_meter.game_over.connect(_on_ram_game_over)
 	
 	game_over_screen.visible = false
 	
@@ -38,18 +38,36 @@ func _ready() -> void:
 		wave_timer.wait_time = initial_wave_delay
 		wave_timer.start()
 
-func _process(_delta: float) -> void:
-	if not _wave_in_progress and enemy_spawner.get_active_enemy_count() == 0:
-		if enemy_spawner.get_current_wave() > 0:
-			_start_next_wave_timer()
+func _on_enemy_spawned(enemy: Node2D) -> void:
+	if enemy.get_parent() == null:
+		enemies_container.add_child(enemy)
+	
+	if enemy is BaseEnemy:
+		enemy.died.connect(_on_enemy_died)
+
+func _on_status_effect_applied(type: String, data: Dictionary) -> void:
+	match type:
+		"disruption":
+			if player:
+				player.set_control_disrupted(true, data.get("duration", 2.0))
+			if control_disruptor:
+				control_disruptor.disrupt(data.get("duration", 2.0))
+		"ram_drain":
+			if player:
+				player.add_ram(data.get("amount", 1.0))
+		"gravity_pull":
+			if player:
+				player.apply_external_force(data.get("direction", Vector2.ZERO) * data.get("strength", 0.0))
+
+func _on_enemy_died(_enemy: BaseEnemy) -> void:
+	pass
+
+func _on_wave_completed(wave_number: int) -> void:
+	_wave_in_progress = false
+	print("Wave %d completed!" % wave_number)
 
 func _on_wave_timer_timeout() -> void:
 	start_wave()
-
-func _start_next_wave_timer() -> void:
-	wave_timer.stop()
-	wave_timer.wait_time = time_between_waves
-	wave_timer.start()
 
 func start_wave() -> void:
 	if _wave_in_progress:
@@ -59,40 +77,6 @@ func start_wave() -> void:
 
 func _on_player_thread_forked(thread: SubThread) -> void:
 	projectiles_container.add_child(thread)
-
-func _on_enemy_spawned(enemy: BaseEnemy) -> void:
-	enemies_container.add_child(enemy)
-	print("[DEBUG] Enemy '%s' spawned at %v" % [enemy.name, enemy.global_position])
-	
-	if enemy.has_method("disrupted_player"):
-		enemy.disrupted_player.connect(_on_heisenberg_disrupted)
-	
-	if enemy.has_method("leaking_ram"):
-		enemy.leaking_ram.connect(_on_memory_leak_drain)
-	
-	if enemy.has_method("player_gravity_pull"):
-		enemy.player_gravity_pull.connect(_on_gravity_pull)
-	
-	enemy.died.connect(_on_enemy_died)
-
-func _on_heisenberg_disrupted(duration: float) -> void:
-	control_disruptor.disrupt(duration)
-
-func _on_memory_leak_drain(amount: float) -> void:
-	var ram_meter = get_ram_meter()
-	if ram_meter:
-		ram_meter.add_ram(amount)
-
-func _on_gravity_pull(_source_pos: Vector2, strength: float, pull_dir: Vector2) -> void:
-	if player and player.has_method("apply_external_force"):
-		player.apply_external_force(pull_dir * strength)
-
-func _on_enemy_died(_enemy: BaseEnemy) -> void:
-	pass
-
-func _on_wave_completed(wave_number: int) -> void:
-	_wave_in_progress = false
-	print("Wave %d completed!" % wave_number)
 
 func get_active_enemy_count() -> int:
 	return enemy_spawner.get_active_enemy_count()
@@ -112,8 +96,9 @@ func _on_player_died() -> void:
 	if not _is_game_over:
 		_trigger_game_over("PLAYER_TERMINATED")
 
-func _on_ram_game_over() -> void:
-	_trigger_game_over("HEAP_OVERFLOW")
+func _on_ram_overflow() -> void:
+	if player:
+		player.trigger_dead()
 
 func _trigger_game_over(reason: String) -> void:
 	if _is_game_over:

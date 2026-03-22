@@ -1,8 +1,9 @@
-[gd_scene format=3 uid="uid://dgn4dxtq0yrck"]
+[gd_scene format=3 uid="uid://camn2nuuj6fs1"]
 
 [ext_resource type="Shader" uid="uid://cak5j68ubhw2i" path="res://shaders/matrix_background.gdshader" id="1_shader"]
-[ext_resource type="Script" path="res://scripts/background_glitcher.gd" id="3_script"]
-[ext_resource type="Script" path="res://scripts/background_manager.gd" id="4_script"]
+[ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://ByteBounce.ttf" id="2_font"]
+[ext_resource type="Script" uid="uid://uxdofvoj8jt5" path="res://scripts/managers/background_glitcher.gd" id="3_script"]
+[ext_resource type="Script" path="res://scripts/managers/background_manager.gd" id="4_script"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_matrix"]
 shader = ExtResource("1_shader")
@@ -13,11 +14,12 @@ shader_parameter/scanline_count = 120.0
 shader_parameter/flicker_intensity = 0.01
 shader_parameter/jitter_intensity = 0.001
 shader_parameter/grid_size = 35.0
-shader_parameter/world_offset = Vector2(0, 0)
+
+[sub_resource type="LabelSettings" id="LabelSettings_jougr"]
 
 [node name="BackgroundLayer" type="CanvasLayer" unique_id=1955430562]
-layer = -50
 script = ExtResource("4_script")
+layer = -50
 
 [node name="ShaderRect" type="ColorRect" parent="." unique_id=219404308]
 material = SubResource("ShaderMaterial_matrix")

@@ -1,18 +1,19 @@
 [gd_scene format=3 uid="uid://bgb13aasg840w"]
 
-[ext_resource type="Script" uid="uid://dvgdtqyshw4mo" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="Script" uid="uid://dvgdtqyshw4mo" path="res://scripts/player/player.gd" id="1_g2els"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player.png" id="2_qhqgy"]
-[ext_resource type="Script" uid="uid://d227oubl5x6pu" path="res://scripts/complexity_manager.gd" id="3_qlg0r"]
-[ext_resource type="Script" uid="uid://dc1ewy7asj25l" path="res://scripts/visuals_component.gd" id="4_tuyoq"]
-[ext_resource type="Script" uid="uid://dfhntrnnknlv7" path="res://scripts/movement_component.gd" id="5_fjrip"]
-[ext_resource type="Script" uid="uid://ip664cgmviuy" path="res://scripts/player_complexity.gd" id="6_complexity"]
+[ext_resource type="Script" uid="uid://d227oubl5x6pu" path="res://scripts/managers/complexity_manager.gd" id="3_qlg0r"]
+[ext_resource type="Script" uid="uid://dc1ewy7asj25l" path="res://scripts/components/visuals_component.gd" id="4_tuyoq"]
+[ext_resource type="Script" uid="uid://dfhntrnnknlv7" path="res://scripts/components/movement_component.gd" id="5_fjrip"]
+[ext_resource type="Script" uid="uid://ip664cgmviuy" path="res://scripts/player/player_complexity.gd" id="6_complexity"]
+[ext_resource type="Script" uid="uid://bup1eu0x5hshx" path="res://scripts/components/system_resources_component.gd" id="6_resources"]
 [ext_resource type="Resource" uid="uid://cplisklusobv2" path="res://resources/player_complexity/exponential.tres" id="7_exp"]
 [ext_resource type="Resource" uid="uid://dr0qbmmgsgv6s" path="res://resources/player_complexity/polynomial.tres" id="8_poly"]
 [ext_resource type="Resource" uid="uid://5b20ti5ctpdw" path="res://resources/player_complexity/linear.tres" id="9_lin"]
 [ext_resource type="Resource" uid="uid://qcljf1e6b4q7" path="res://resources/player_complexity/linearithmic.tres" id="10_linithm"]
 [ext_resource type="Resource" uid="uid://dsq62bgi4q4j5" path="res://resources/player_complexity/logarithmic.tres" id="11_log"]
 [ext_resource type="Resource" uid="uid://o88o3bfnf1h6" path="res://resources/player_complexity/constant.tres" id="12_const"]
-[ext_resource type="PackedScene" uid="uid://dkaau33k7h40w" path="res://scenes/sub_thread.tscn" id="13_subthread"]
+[ext_resource type="PackedScene" uid="uid://dkaau33k7h40w" path="res://scenes/player/sub_thread.tscn" id="13_subthread"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_x5gf8"]
 atlas = ExtResource("2_qhqgy")
@@ -169,13 +170,14 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g2els"]
 size = Vector2(81, 70)
 
-[node name="player" type="CharacterBody2D" unique_id=54899737 node_paths=PackedStringArray("movement", "complexity", "visuals")]
+[node name="player" type="CharacterBody2D" unique_id=54899737 node_paths=PackedStringArray("movement", "complexity", "visuals", "system_resources")]
 collision_layer = 2
 collision_mask = 2
 script = ExtResource("1_g2els")
 movement = NodePath("MovementComponent")
 complexity = NodePath("ComplexityManager")
 visuals = NodePath("VisualsComponent")
+system_resources = NodePath("SystemResourcesComponent")
 sub_thread_scene = ExtResource("13_subthread")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=324693883]
@@ -187,7 +189,7 @@ autoplay = "exponential"
 position = Vector2(-2, -3)
 shape = SubResource("RectangleShape2D_g2els")
 
-[node name="ComplexityManager" type="Node" parent="." unique_id=1185156960]
+[node name="ComplexityManager" type="Node" parent="." unique_id=1185156960 groups=["complexity_manager"]]
 script = ExtResource("3_qlg0r")
 complexity_tiers = Array[ExtResource("6_complexity")]([ExtResource("7_exp"), ExtResource("8_poly"), ExtResource("10_linithm"), ExtResource("9_lin"), ExtResource("11_log"), ExtResource("12_const")])
 
@@ -198,6 +200,9 @@ collision_shape = NodePath("../CollisionShape2D")
 
 [node name="MovementComponent" type="Node" parent="." unique_id=1622289911]
 script = ExtResource("5_fjrip")
+
+[node name="SystemResourcesComponent" type="Node" parent="." unique_id=20240322]
+script = ExtResource("6_resources")
 metadata/_custom_type_script = "uid://dfhntrnnknlv7"
 
 [node name="SplitCooldown" type="Timer" parent="." unique_id=433983248]

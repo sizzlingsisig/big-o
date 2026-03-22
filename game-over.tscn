@@ -1,8 +1,0 @@
-[gd_scene format=3 uid="uid://jsdrnu36ymp0"]
-
-[ext_resource type="Texture2D" path="res://bsod.png" id="1_iwvu1"]
-
-[node name="Bsod" type="Sprite2D" unique_id=2014343569]
-position = Vector2(1047, 448)
-scale = Vector2(3.2937503, 2.55)
-texture = ExtResource("1_iwvu1")

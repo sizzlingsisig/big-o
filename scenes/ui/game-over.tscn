@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://c6hyin5mmvq4h"]
+[gd_scene format=3 uid="uid://hjwjqqkxais5"]
 
-[ext_resource type="Script" path="res://scripts/game_over.gd" id="1_gameover"]
+[ext_resource type="Script" uid="uid://c2sbje4d728wa" path="res://scripts/ui/game_over.gd" id="1_gameover"]
 [ext_resource type="Texture2D" uid="uid://7w1xk65ja453" path="res://assets/backgrounds/bsod.png" id="2_bsod"]
 [ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://assets/fonts/ByteBounce.ttf" id="3_font"]
 
