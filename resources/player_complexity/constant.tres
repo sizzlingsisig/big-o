@@ -6,7 +6,7 @@
 script = ExtResource("1_x6")
 tier_name = "O(1)"
 animation_name = "constant"
-speed = 200.0
+speed = 220.0
 inertia = 0.0
 collider_size = Vector2(22, 22)
 collider_offset = Vector2(-2, 10)
