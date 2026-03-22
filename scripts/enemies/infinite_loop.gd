@@ -1,7 +1,5 @@
 extends BaseEnemy
 
-signal player_gravity_pull(global_position: Vector2, strength: float, pull_direction: Vector2)
-
 @export_category("Infinite Loop Behavior")
 @export var orbit_center: Vector2 = Vector2.ZERO
 @export var orbit_radius: float = 250.0
@@ -54,7 +52,11 @@ func _apply_gravity_pull_to_players(_delta: float) -> void:
 		if target_distance < gravity_well_range:
 			_current_pull_strength = gravity_well_strength * (1.0 - target_distance / gravity_well_range)
 			var pull_direction = to_target.normalized()
-			player_gravity_pull.emit(global_position, _current_pull_strength, pull_direction)
+			
+			apply_status_effect("gravity_pull", {
+				"strength": _current_pull_strength,
+				"direction": pull_direction
+			})
 	
 	for p in to_remove:
 		_players_in_well.erase(p)

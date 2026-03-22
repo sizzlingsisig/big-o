@@ -1,7 +1,5 @@
 extends BaseEnemy
 
-signal leaking_ram(amount: float)
-
 @export_category("Memory Leak Behavior")
 @export var growth_rate: float = 0.3
 @export var max_scale: float = 3.5
@@ -43,7 +41,9 @@ func _process_behavior(delta: float) -> void:
 	
 	if _is_overlapping_player and _drain_timer >= drain_interval:
 		_drain_timer = 0.0
-		leaking_ram.emit(continuous_ram_drain)
+		apply_status_effect("ram_drain", {
+			"amount": continuous_ram_drain
+		})
 
 func _on_leak_area_entered(body: Node) -> void:
 	if body is Player:

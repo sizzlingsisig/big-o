@@ -1,7 +1,5 @@
 extends BaseEnemy
 
-signal disrupted_player(duration: float)
-
 @export_category("Heisenberg Behavior")
 @export var disrupt_range: float = 180.0
 @export var disrupt_duration: float = 2.0
@@ -58,7 +56,11 @@ func _check_disrupt_trigger() -> void:
 func _trigger_disrupt() -> void:
 	_is_disrupting = true
 	_disrupt_timer = disrupt_duration
-	disrupted_player.emit(disrupt_duration)
+	
+	apply_status_effect("disruption", {
+		"duration": disrupt_duration,
+		"strength": move_speed # Or some other value
+	})
 	
 	if disrupt_effect:
 		disrupt_effect.trigger()

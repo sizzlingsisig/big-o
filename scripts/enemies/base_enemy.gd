@@ -99,9 +99,17 @@ func _on_body_entered(body: Node) -> void:
 	if body is Player and not _has_hit_player:
 		_has_hit_player = true
 		print("[ENEMY] %s hit player! RAM +%.0f%%" % [name, ram_damage])
-		body.take_damage(contact_damage)
-		body.add_ram(ram_damage)
+		
+		# Decoupled interaction via Player methods or GameEvents
+		if body.has_method("take_damage"):
+			body.take_damage(contact_damage)
+		if body.has_method("add_ram"):
+			body.add_ram(ram_damage)
+			
 		die()
+
+func apply_status_effect(effect_type: String, data: Dictionary) -> void:
+	GameEvents.status_effect_applied.emit(effect_type, data)
 
 func _on_screen_exited() -> void:
 	if free_on_screen_exit and _is_active:
