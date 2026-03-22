@@ -1,0 +1,224 @@
+[gd_scene format=3 uid="uid://b1m8s8k6l8m4q"]
+
+[ext_resource type="Script" uid="uid://bx55is0fidsvp" path="res://scripts/ui/hud.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://assets/fonts/ByteBounce.ttf" id="2_font"]
+[ext_resource type="Script" uid="uid://bvgwcfwm2jl5v" path="res://scripts/ui/ram_meter.gd" id="2_ram"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+bg_color = Color(0.04, 0.12, 0.06, 0.9)
+border_width_bottom = 2
+border_color = Color(0, 1, 0.5, 0.8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ram_bg"]
+bg_color = Color(0, 0, 0, 0.5)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 1, 0.5, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ram_fill"]
+bg_color = Color(1, 0, 1, 0.8)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.5, 1, 1)
+shadow_color = Color(1, 0, 1, 0.3)
+shadow_size = 8
+
+[node name="HUD" type="CanvasLayer" unique_id=1423168194]
+script = ExtResource("1_script")
+
+[node name="Control" type="Control" parent="." unique_id=289033880]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Ambiance" type="Control" parent="Control" unique_id=604314230]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopBar" type="Panel" parent="Control" unique_id=1981669342]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 40.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
+
+[node name="HBox" type="HBoxContainer" parent="Control/TopBar" unique_id=1053001382]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_right = -15.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="Control/TopBar/HBox" unique_id=1755413128]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = ">_ Big O: Technical Debt"
+
+[node name="Spacer" type="Control" parent="Control/TopBar/HBox" unique_id=1701358875]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WaveSection" type="HBoxContainer" parent="Control/TopBar/HBox" unique_id=605255600]
+layout_mode = 2
+alignment = 2
+
+[node name="Label" type="Label" parent="Control/TopBar/HBox/WaveSection" unique_id=605255601]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "WAVE:"
+
+[node name="WaveValue" type="Label" parent="Control/TopBar/HBox/WaveSection" unique_id=605255602]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "1"
+
+[node name="RAMSection" type="VBoxContainer" parent="Control" unique_id=722093358]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 60.0
+offset_right = 100.0
+offset_bottom = -20.0
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="RAMTitle" type="Label" parent="Control/RAMSection" unique_id=586060861]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "RAM"
+horizontal_alignment = 1
+
+[node name="RAMContainer" type="PanelContainer" parent="Control/RAMSection" unique_id=1416349608]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_ram_bg")
+
+[node name="RAMProgressBar" type="ProgressBar" parent="Control/RAMSection/RAMContainer" unique_id=522119677]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_styles/fill = SubResource("StyleBoxFlat_ram_fill")
+value = 85.0
+fill_mode = 3
+show_percentage = false
+
+[node name="RAMPercentLabel" type="Label" parent="Control/RAMSection/RAMContainer" unique_id=904650285]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(1, 0.4, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "85%"
+horizontal_alignment = 1
+
+[node name="LeakageLabel" type="Label" parent="Control/RAMSection" unique_id=1267256178]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.8, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "Leakage"
+horizontal_alignment = 1
+
+[node name="StatusSection" type="VBoxContainer" parent="Control" unique_id=6052556]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 60.0
+offset_right = 200.0
+offset_bottom = 160.0
+grow_horizontal = 2
+
+[node name="ComplexityContainer" type="HBoxContainer" parent="Control/StatusSection" unique_id=1294033200]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Control/StatusSection/ComplexityContainer" unique_id=74423977]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "CURRENT COMPLEXITY: "
+
+[node name="ComplexityValue" type="Label" parent="Control/StatusSection/ComplexityContainer" unique_id=1098285647]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "O(2^n)"
+
+[node name="StatusContainer" type="HBoxContainer" parent="Control/StatusSection" unique_id=1423535034]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Control/StatusSection/StatusContainer" unique_id=407564736]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "SYS_STATUS: "
+
+[node name="StatusValue" type="Label" parent="Control/StatusSection/StatusContainer" unique_id=1021470539]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "READY"
+
+[node name="RAMDisruptWarning" type="Label" parent="Control" unique_id=684906510]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -20.0
+offset_right = 150.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 48
+text = "⚠ SYSTEM OVERLOAD ⚠"
+horizontal_alignment = 1
+
+[node name="RAMMeter" type="Node" parent="." unique_id=1412030230]
+script = ExtResource("2_ram")
