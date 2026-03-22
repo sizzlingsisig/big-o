@@ -4,7 +4,7 @@ class_name RAMMeter
 signal ram_changed(current: float, maximum: float)
 signal ram_full
 signal ram_cleared
-signal game_over
+signal ram_overflow
 
 @export var max_ram: float = 100.0
 @export var critical_threshold: float = 70.0
@@ -16,7 +16,7 @@ var _is_critical: bool = false
 func _ready() -> void:
 	add_to_group("ram_meter")
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
 
 func add_ram(amount: float) -> void:
@@ -46,5 +46,5 @@ func is_critical() -> bool:
 
 func _trigger_overflow() -> void:
 	print("RAM OVERFLOW! System crash imminent...")
-	game_over.emit()
+	ram_overflow.emit()
 	current_ram = max_ram
