@@ -12,6 +12,10 @@ var facing_direction: Vector2 = Vector2.RIGHT
 var _input_history_time: PackedFloat64Array = []
 var _input_history_pos: PackedVector2Array = []
 
+var _is_disrupted: bool = false
+var _disruption_strength: float = 0.0
+var _external_force: Vector2 = Vector2.ZERO
+
 func _ready() -> void:
 	if not parent:
 		push_error("MovementComponent must be a child of a CharacterBody2D!")
@@ -43,6 +47,13 @@ func process_movement(delta: float, target_pos: Vector2, current_complexity: Pla
 
 	var target_direction: Vector2 = (delayed_target - parent.global_position).normalized()
 	
+	if _is_disrupted and _disruption_strength > 0:
+		var scramble = Vector2(
+			randf_range(-_disruption_strength, _disruption_strength),
+			randf_range(-_disruption_strength, _disruption_strength)
+		)
+		target_direction = (target_direction + scramble).normalized()
+	
 	# Update facing direction if we are actually moving
 	if target_direction.length() > 0.0:
 		facing_direction = target_direction
@@ -59,6 +70,10 @@ func process_movement(delta: float, target_pos: Vector2, current_complexity: Pla
 	
 	parent.velocity = parent.velocity.lerp(target_direction * current_complexity.speed, lerp_weight)
 	
+	# Apply external forces (gravity wells, etc.)
+	parent.velocity += _external_force
+	_external_force = Vector2.ZERO
+	
 	# Perform the actual move
 	parent.move_and_slide()
 
@@ -66,3 +81,12 @@ func process_movement(delta: float, target_pos: Vector2, current_complexity: Pla
 func apply_impulse(direction: Vector2, force: float) -> void:
 	if parent:
 		parent.velocity += direction * force
+
+## Applies an external force (like gravity) to the player.
+## Forces are accumulated and applied during movement processing.
+func apply_external_force(force: Vector2) -> void:
+	_external_force += force
+
+func set_disrupted(disrupted: bool, strength: float) -> void:
+	_is_disrupted = disrupted
+	_disruption_strength = strength
