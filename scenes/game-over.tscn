@@ -1,8 +1,111 @@
 [gd_scene format=3 uid="uid://hjwjqqkxais5"]
 
-[ext_resource type="Texture2D" uid="uid://7w1xk65ja453" path="res://bsod.png" id="1_iwvu1"]
+[ext_resource type="Script" uid="uid://c2sbje4d728wa" path="res://scripts/game_over.gd" id="1_gameover"]
+[ext_resource type="Texture2D" uid="uid://7w1xk65ja453" path="res://assets/backgrounds/bsod.png" id="2_bsod"]
+[ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://assets/fonts/ByteBounce.ttf" id="3_font"]
 
-[node name="Bsod" type="Sprite2D" unique_id=2014343569]
-position = Vector2(1047, 448)
-scale = Vector2(3.2937503, 2.55)
-texture = ExtResource("1_iwvu1")
+[node name="GameOver" type="CanvasLayer" unique_id=174524675]
+process_mode = 3
+script = ExtResource("1_gameover")
+
+[node name="Container" type="Control" parent="." unique_id=782770958]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BsodSprite" type="Sprite2D" parent="Container" unique_id=817979819]
+modulate = Color(0.77076775, 0.36349636, 0.73442894, 1)
+position = Vector2(998.5, 499.50006)
+scale = Vector2(7.163333, 6.946429)
+texture = ExtResource("2_bsod")
+
+[node name="ErrorCode" type="Label" parent="Container" unique_id=1555630317]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 280.0
+offset_bottom = 320.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 32
+text = "A fatal exception (0x0000000D) has been detected in your system."
+horizontal_alignment = 1
+
+[node name="ErrorMessage" type="Label" parent="Container" unique_id=1284425800]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 330.0
+offset_bottom = 370.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 48
+text = "FATAL_EXCEPTION_IN_SYSTEM"
+horizontal_alignment = 1
+
+[node name="TechnicalDebtLabel" type="Label" parent="Container" unique_id=432887227]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 420.0
+offset_bottom = 460.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 28
+text = "TECHNICAL DEBT: HEAP_OVERFLOW"
+horizontal_alignment = 1
+
+[node name="RAMUsageLabel" type="Label" parent="Container" unique_id=604234824]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 470.0
+offset_bottom = 510.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 28
+text = "RAM USAGE: 100%"
+horizontal_alignment = 1
+
+[node name="WaveLabel" type="Label" parent="Container" unique_id=927934470]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 520.0
+offset_bottom = 560.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 28
+text = "WAVE REACHED: 1"
+horizontal_alignment = 1
+
+[node name="RestartHint" type="Label" parent="Container" unique_id=384085103]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 620.0
+offset_bottom = 660.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 24
+text = "Press [SPACE] to Reboot System"
+horizontal_alignment = 1
+
+[node name="GlitchOverlay" type="ColorRect" parent="." unique_id=540714498]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.5, 1, 0.1)

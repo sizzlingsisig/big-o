@@ -1,0 +1,135 @@
+extends CanvasLayer
+
+signal restart_requested
+
+@onready var error_code: Label = $Container/ErrorCode
+@onready var error_message: Label = $Container/ErrorMessage
+@onready var technical_debt_label: Label = $Container/TechnicalDebtLabel
+@onready var ram_usage_label: Label = $Container/RAMUsageLabel
+@onready var wave_label: Label = $Container/WaveLabel
+@onready var restart_hint: Label = $Container/RestartHint
+@onready var container: Control = $Container
+@onready var bsod_sprite: Sprite2D = $Container/BsodSprite
+@onready var glitch_overlay: Control = $GlitchOverlay
+
+var _crash_reason: String = "HEAP_OVERFLOW"
+var _final_ram: float = 100.0
+var _final_wave: int = 1
+var _is_glitching: bool = false
+
+func _ready() -> void:
+	visible = false
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	var crash_codes: Array[String] = [
+		"0x0000000D", "0x0000000C", "0x0000000A", "0x00000007",
+		"0xDEADBEEF", "0xC000021A", "0x00000050", "0x0000001E"
+	]
+	var crash_messages: Array[String] = [
+		"FATAL_EXCEPTION_IN_SYSTEM",
+		"STACK_BUFFER_OVERRUN",
+		"IRQL_NOT_LESS_OR_EQUAL",
+		"POOL_CORRUPTION_DETECTED",
+		"MEMORY_CORRUPTION_CRITICAL",
+		"SESSION_CRITICAL_OBJECT_DIED",
+		"PFN_LIST_CORRUPT",
+		"KMODE_EXCEPTION_NOT_HANDLED"
+	]
+	
+	var index = randi() % crash_codes.size()
+	_crash_reason = crash_codes[index] if randf() > 0.7 else "HEAP_OVERFLOW"
+	
+	if error_code:
+		error_code.text = "A fatal exception (" + _crash_reason + ") has been detected in your system."
+	
+	if error_message:
+		error_message.text = crash_messages[index]
+	
+	_add_glitch_timer()
+
+func show_game_over(ram_percentage: float, wave_number: int, reason: String = "HEAP_OVERFLOW") -> void:
+	_final_ram = ram_percentage
+	_final_wave = wave_number
+	_crash_reason = reason
+	
+	if technical_debt_label:
+		technical_debt_label.text = "TECHNICAL DEBT: " + _crash_reason
+	if ram_usage_label:
+		ram_usage_label.text = "RAM USAGE: %.0f%%" % _final_ram
+	if wave_label:
+		wave_label.text = "WAVE REACHED: %d" % _final_wave
+	
+	visible = true
+	_start_glitch_effect()
+	
+	if get_tree():
+		get_tree().paused = true
+
+func _start_glitch_effect() -> void:
+	_is_glitching = true
+	container.position.x = randf_range(-10, 10)
+	container.position.y = randf_range(-5, 5)
+	
+	var tween = create_tween().set_loops(30)
+	tween.tween_callback(_glitch_frame)
+	tween.tween_interval(0.05)
+
+func _glitch_frame() -> void:
+	if not _is_glitching:
+		return
+	
+	container.position.x = randf_range(-8, 8)
+	container.position.y = randf_range(-4, 4)
+	
+	if randf() > 0.5:
+		container.modulate.r = randf_range(0.8, 1.2)
+		container.modulate.g = randf_range(0.8, 1.2)
+		container.modulate.b = randf_range(0.8, 1.2)
+	else:
+		container.modulate = Color.WHITE
+	
+	if randf() > 0.8 and glitch_overlay:
+		glitch_overlay.visible = not glitch_overlay.visible
+
+func _stop_glitch_effect() -> void:
+	_is_glitching = false
+	container.position = Vector2.ZERO
+	container.modulate = Color.WHITE
+	if glitch_overlay:
+		glitch_overlay.visible = false
+
+func _add_glitch_timer() -> void:
+	await get_tree().create_timer(0.1).timeout
+	_restart_hint_pulse()
+
+func _restart_hint_pulse() -> void:
+	while is_instance_valid(self) and visible:
+		if restart_hint:
+			var tween = create_tween()
+			tween.tween_property(restart_hint, "modulate:a", 0.3, 0.5)
+			tween.tween_property(restart_hint, "modulate:a", 1.0, 0.5)
+			await tween.finished
+			await get_tree().create_timer(randf_range(1.0, 2.0)).timeout
+
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	
+	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_select"):
+		_restart_game()
+	elif event.is_action_pressed("ui_cancel"):
+		_quit_game()
+
+func _restart_game() -> void:
+	_stop_glitch_effect()
+	visible = false
+	if get_tree():
+		get_tree().paused = false
+	restart_requested.emit()
+	get_tree().reload_current_scene()
+
+func _quit_game() -> void:
+	_stop_glitch_effect()
+	if get_tree():
+		get_tree().paused = false
+	get_tree().quit()

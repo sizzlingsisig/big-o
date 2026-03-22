@@ -1,7 +1,27 @@
 [gd_scene format=3 uid="uid://b1m8s8k6l8m4q"]
 
 [ext_resource type="Script" path="res://scripts/hud.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ram_meter.gd" id="2_ram"]
 [ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://ByteBounce.ttf" id="2_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.1, 0.1, 0.1, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.8, 0.3, 0.8)
+corner_radius_left = 4
+corner_radius_top = 4
+corner_radius_right = 4
+corner_radius_bottom = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
+bg_color = Color(0.2, 0.8, 0.3, 0.9)
+corner_radius_left = 2
+corner_radius_top = 2
+corner_radius_right = 2
+corner_radius_bottom = 2
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_script")
@@ -26,3 +46,54 @@ theme_override_colors/font_color = Color(0, 1, 0.5, 0.8)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 32
 text = "0x0000 : 0x0000"
+
+[node name="RAMMeter" type="PanelContainer" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 70.0
+grow_horizontal = 0
+script = ExtResource("2_ram")
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+
+[node name="VBox" type="VBoxContainer" parent="Control/RAMMeter"]
+layout_mode = 2
+
+[node name="RAMLabel" type="Label" parent="Control/RAMMeter/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1.0, 0.5, 1.0)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 14
+text = "RAM: 0%"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="Control/RAMMeter/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+show_percentage = false
+theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
+
+[node name="RAMDisruptWarning" type="Label" parent="Control"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -150.0
+offset_top = 80.0
+offset_right = 150.0
+offset_bottom = 120.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 1.0)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "⚠ RAM CRITICAL ⚠"
+horizontal_alignment = 1
