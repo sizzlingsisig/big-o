@@ -11,15 +11,22 @@ config_version=5
 [application]
 
 config/name="Big O"
-run/main_scene="res://scenes/world.tscn"
+run/main_scene="res://scenes/core/world.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GameEvents="*res://scripts/globals/game_events.gd"
+ScreenFX="*res://scripts/fx/screen_fx.gd"
 
 [display]
 
 window/size/viewport_width=1920
-window/size/viewport_height=953
+window/size/viewport_height=1080
+window/size/mode=2
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [physics]
 
