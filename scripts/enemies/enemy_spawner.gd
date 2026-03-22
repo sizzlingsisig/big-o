@@ -11,6 +11,7 @@ signal wave_completed(wave_number: int)
 @export var spawn_delay: float = 1.5
 @export var spawn_width: float = 1920.0
 @export var spawn_height: float = 1080.0
+@export var max_active_enemies: int = 30
 
 @export_category("Wave Configuration")
 @export var base_wave_size: int = 3
@@ -67,36 +68,43 @@ func start_wave() -> void:
 	wave_started.emit(_current_wave)
 
 func _get_spawn_position() -> Vector2:
+	var origin = Vector2.ZERO
+	if _player and is_instance_valid(_player):
+		origin = _player.global_position
+	
 	var direction_index = _spawn_index % DIRECTIONS.size()
 	var _direction = DIRECTIONS[direction_index]
 	var half_width = spawn_width / 2 + spawn_margin
 	var half_height = spawn_height / 2 + spawn_margin
 	
-	var pos: Vector2
+	var offset: Vector2
 	match direction_index:
 		0: # North
-			pos = Vector2(randf_range(-half_width, half_width), -half_height)
+			offset = Vector2(randf_range(-half_width, half_width), -half_height)
 		1: # Northeast
-			pos = Vector2(half_width, -half_height)
+			offset = Vector2(half_width, -half_height)
 		2: # East
-			pos = Vector2(half_width, randf_range(-half_height, half_height))
+			offset = Vector2(half_width, randf_range(-half_height, half_height))
 		3: # Southeast
-			pos = Vector2(half_width, half_height)
+			offset = Vector2(half_width, half_height)
 		4: # South
-			pos = Vector2(randf_range(-half_width, half_width), half_height)
+			offset = Vector2(randf_range(-half_width, half_width), half_height)
 		5: # Southwest
-			pos = Vector2(-half_width, half_height)
+			offset = Vector2(-half_width, half_height)
 		6: # West
-			pos = Vector2(-half_width, randf_range(-half_height, half_height))
+			offset = Vector2(-half_width, randf_range(-half_height, half_height))
 		7: # Northwest
-			pos = Vector2(-half_width, -half_height)
+			offset = Vector2(-half_width, -half_height)
 		_:
-			pos = Vector2(randf_range(-half_width, half_width), -half_height)
+			offset = Vector2(randf_range(-half_width, half_width), -half_height)
 	
-	return pos
+	return origin + offset
 
 func _try_spawn_enemy() -> void:
 	if enemy_scenes.is_empty():
+		return
+	
+	if _active_enemies.size() >= max_active_enemies:
 		return
 	
 	var scene = enemy_scenes[randi() % enemy_scenes.size()]
@@ -107,7 +115,6 @@ func _try_spawn_enemy() -> void:
 		return
 	
 	var direction_index = _spawn_index % DIRECTIONS.size()
-	var _direction = DIRECTIONS[direction_index]
 	var direction_name = DIRECTION_NAMES[direction_index]
 	
 	enemy.global_position = _get_spawn_position()

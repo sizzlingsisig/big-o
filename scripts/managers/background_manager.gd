@@ -76,8 +76,8 @@ func _on_milestone_reached(index: int) -> void:
 func _on_sector_changed(coords: Vector2i) -> void:
 	# Change zone every 3 sectors (Euclidean distance from origin as a simple zone metric)
 	var distance_in_sectors = int(coords.length())
-	var new_zone = (distance_in_sectors / 3) % 3
-	
+	var new_zone = int(distance_in_sectors / 3.0) % 3
+
 	if new_zone != _current_zone:
 		_current_zone = new_zone
 		_update_background_pattern(new_zone)

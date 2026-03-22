@@ -15,10 +15,15 @@ signal died(enemy: BaseEnemy)
 @export var damage: float = 1.0
 @export var contact_damage: float = 1.0
 @export var ram_damage: float = 10.0
-@export var free_on_screen_exit: bool = true
+@export var free_on_screen_exit: bool = false
+
+@export_group("Culling")
+@export var cull_distance: float = 2500.0
+@export var use_simplified_behavior_off_screen: bool = true
 
 var _target: Node2D
 var _is_active: bool = false
+var _is_on_screen: bool = false
 var _has_hit_player: bool = false
 var velocity: Vector2 = Vector2.ZERO
 
@@ -36,6 +41,7 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	
 	if screen_notifier:
+		screen_notifier.screen_entered.connect(_on_screen_entered)
 		screen_notifier.screen_exited.connect(_on_screen_exited)
 
 func _setup_from_config() -> void:
@@ -49,14 +55,33 @@ func _setup_from_config() -> void:
 func _physics_process(delta: float) -> void:
 	if not _is_active:
 		return
-	_process_movement(delta)
-	_process_behavior(delta)
+	
+	if use_simplified_behavior_off_screen and not _is_on_screen:
+		_process_movement(delta)
+		_process_simplified_behavior(delta)
+	else:
+		_process_movement(delta)
+		_process_behavior(delta)
+	
+	_check_cull_distance()
 
 func _process_movement(_delta: float) -> void:
 	pass
 
 func _process_behavior(_delta: float) -> void:
 	pass
+
+func _process_simplified_behavior(_delta: float) -> void:
+	pass
+
+func _check_cull_distance() -> void:
+	if not _target or not is_instance_valid(_target):
+		return
+	
+	var distance_to_target = global_position.distance_to(_target.global_position)
+	if distance_to_target > cull_distance:
+		print("[ENEMY] %s culled at distance %.0f" % [name, distance_to_target])
+		die()
 
 func activate(target: Node2D) -> void:
 	_target = target
@@ -73,6 +98,7 @@ func _on_activated() -> void:
 
 func _on_deactivated() -> void:
 	visible = false
+	_is_on_screen = false
 
 func take_damage(amount: float) -> void:
 	if health_component:
@@ -112,6 +138,7 @@ func apply_status_effect(effect_type: String, data: Dictionary) -> void:
 	GameEvents.status_effect_applied.emit(effect_type, data)
 
 func _on_screen_exited() -> void:
-	if free_on_screen_exit and _is_active:
-		print("[ENEMY] %s exited screen, freeing" % name)
-		die()
+	_is_on_screen = false
+
+func _on_screen_entered() -> void:
+	_is_on_screen = true
