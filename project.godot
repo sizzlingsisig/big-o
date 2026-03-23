@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GameEvents="*res://scripts/globals/game_events.gd"
 ScreenFX="*res://scripts/fx/screen_fx.gd"
+CollectiblePool="*res://scripts/collectibles/collectible_manager.gd"
 
 [display]
 

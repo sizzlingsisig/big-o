@@ -16,6 +16,23 @@ var _is_disrupted: bool = false
 var _disruption_strength: float = 0.0
 var _external_force: Vector2 = Vector2.ZERO
 
+var _is_l1_cache_active: bool = false
+var _is_input_scrambled: bool = false
+var _is_processing_slow: bool = false
+var _l1_cache_timer: float = 0.0
+var _scramble_timer: float = 0.0
+
+func _process(delta: float) -> void:
+	if _is_l1_cache_active:
+		_l1_cache_timer -= delta
+		if _l1_cache_timer <= 0:
+			_is_l1_cache_active = false
+			
+	if _is_input_scrambled:
+		_scramble_timer -= delta
+		if _scramble_timer <= 0:
+			_is_input_scrambled = false
+
 func _ready() -> void:
 	if not parent:
 		push_error("MovementComponent must be a child of a CharacterBody2D!")
@@ -25,55 +42,66 @@ func process_movement(delta: float, target_pos: Vector2, current_complexity: Pla
 	if not parent or not current_complexity:
 		return
 		
+	var actual_input_lag = 0.0 if _is_l1_cache_active else current_complexity.input_lag
+	var actual_inertia = 0.0 if _is_l1_cache_active else current_complexity.inertia
+
 	# 1. Store the current target position with a timestamp
 	var current_time: float = Time.get_ticks_msec() / 1000.0
 	_input_history_time.append(current_time)
 	_input_history_pos.append(target_pos)
-	
+
 	# 2. Find the delayed target position based on input_lag
 	var delayed_target: Vector2 = target_pos # Fallback
-	var lag_threshold: float = current_time - current_complexity.input_lag
-	
+	var lag_threshold: float = current_time - actual_input_lag
+
 	# Remove entries that are older than the lag threshold, except the most recent one we need
 	while _input_history_time.size() > 1 and _input_history_time[0] < lag_threshold:
 		# Keep track of the last valid position before removing
 		delayed_target = _input_history_pos[0]
 		_input_history_time.remove_at(0)
 		_input_history_pos.remove_at(0)
-	
+
 	# If we still have a history, the first element is the closest to the lag target
 	if not _input_history_pos.is_empty():
 		delayed_target = _input_history_pos[0]
 
 	var target_direction: Vector2 = (delayed_target - parent.global_position).normalized()
 	
+	if _is_input_scrambled:
+		target_direction = -target_direction
+		
 	if _is_disrupted and _disruption_strength > 0:
 		var scramble = Vector2(
 			randf_range(-_disruption_strength, _disruption_strength),
 			randf_range(-_disruption_strength, _disruption_strength)
 		)
 		target_direction = (target_direction + scramble).normalized()
-	
+
 	# Update facing direction if we are actually moving
 	if target_direction.length() > 0.0:
 		facing_direction = target_direction
 
 	# Stop moving if we are extremely close to the cursor to prevent "jitter"
-	if parent.global_position.distance_to(delayed_target) < 8.0:
+	if parent.global_position.distance_to(delayed_target) < 8.0 and not _is_input_scrambled:
 		target_direction = Vector2.ZERO
 
 	# Agar.io Drift Logic:
 	# We use (1.0 - inertia) to determine how fast we reach the target velocity.
 	# O(2^n) has 0.9 inertia -> 0.1 weight (Very heavy/drifty)
 	# O(1) has 0.0 inertia -> 1.0 weight (Instant/snappy)
-	var lerp_weight: float = clamp((1.0 - current_complexity.inertia) * delta * 10.0, 0.0, 1.0)
+	var lerp_weight: float = clamp((1.0 - actual_inertia) * delta * 10.0, 0.0, 1.0)
 	
-	parent.velocity = parent.velocity.lerp(target_direction * current_complexity.speed, lerp_weight)
+	if _is_l1_cache_active:
+		lerp_weight = 1.0
+	
+	var speed_multiplier = 1.0 if _is_l1_cache_active else (0.3 if _is_processing_slow else 1.0)
+
+	parent.velocity = parent.velocity.lerp(target_direction * current_complexity.speed * speed_multiplier, lerp_weight)
 	
 	# Apply external forces (gravity wells, etc.)
 	parent.velocity += _external_force
 	_external_force = Vector2.ZERO
-	
+
 	# Perform the actual move
 	parent.move_and_slide()
 
@@ -90,3 +118,14 @@ func apply_external_force(force: Vector2) -> void:
 func set_disrupted(disrupted: bool, strength: float) -> void:
 	_is_disrupted = disrupted
 	_disruption_strength = strength
+
+func trigger_l1_cache(duration: float) -> void:
+	_is_l1_cache_active = true
+	_l1_cache_timer = duration
+
+func trigger_input_scramble(duration: float) -> void:
+	_is_input_scrambled = true
+	_scramble_timer = duration
+
+func set_processing_slow(active: bool) -> void:
+	_is_processing_slow = active

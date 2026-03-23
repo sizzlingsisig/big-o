@@ -62,9 +62,23 @@ func apply_processing_effect() -> void:
 	var flicker = 1.0 + sin(Time.get_ticks_msec() * 0.025) * 0.3
 	sprite.modulate = _base_modulate * flicker
 
+func apply_processing_interrupted_effect() -> void:
+	if not sprite:
+		return
+	
+	_state_tween = create_tween().set_parallel(true)
+	_state_tween.tween_property(sprite, "modulate", Color.ORANGE, 0.1)
+	_state_tween.tween_property(sprite, "scale", _base_scale * 0.8, 0.1)
+	_state_tween.tween_interval(0.15)
+	_state_tween.tween_property(sprite, "modulate", _base_modulate, 0.3)
+	_state_tween.tween_property(sprite, "scale", _base_scale, 0.3)
+
 func clear_processing_effect() -> void:
 	if sprite:
 		sprite.modulate = _base_modulate
+
+func apply_interrupted_effect() -> void:
+	apply_processing_interrupted_effect()
 
 func apply_disruption_effect(intensity: float) -> void:
 	if not sprite:

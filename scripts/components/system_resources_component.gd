@@ -24,6 +24,11 @@ func _ready() -> void:
 func add_ram(amount: float) -> void:
 	current_ram += amount
 
+func apply_ram_dot(total_amount: float, duration: float) -> void:
+	var tween = create_tween()
+	var end_ram = min(current_ram + total_amount, max_ram)
+	tween.tween_property(self, "current_ram", end_ram, duration)
+
 func clear_ram(amount: float) -> void:
 	current_ram -= amount
 	GameEvents.ram_cleared.emit()

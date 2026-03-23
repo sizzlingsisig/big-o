@@ -41,14 +41,26 @@ var _active_enemies: Array[BaseEnemy] = []
 var _player: Node2D
 var _spawn_timer: float = 0.0
 var _spawn_index: int = 0
+var _is_time_frozen: bool = false
 
 func _ready() -> void:
 	add_to_group("enemy_spawner")
+	GameEvents.time_frozen_started.connect(_on_time_frozen_started)
+	GameEvents.time_frozen_ended.connect(_on_time_frozen_ended)
+
+func _on_time_frozen_started(_duration: float) -> void:
+	_is_time_frozen = true
+
+func _on_time_frozen_ended() -> void:
+	_is_time_frozen = false
 
 func set_player(player: Node2D) -> void:
 	_player = player
 
 func _process(delta: float) -> void:
+	if _is_time_frozen:
+		return
+		
 	if _wave_active and _enemies_spawned < _enemies_to_spawn:
 		_spawn_timer += delta
 		if _spawn_timer >= spawn_delay:
