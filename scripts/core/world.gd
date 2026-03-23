@@ -12,9 +12,11 @@ class_name GameWorld
 @onready var control_disruptor: PlayerControlDisruptor = $ControlDisruptor
 @onready var game_over_screen: Node = $GameOver
 @onready var wave_timer: Timer = $WaveTimer
+@onready var pause_menu: PauseMenu = $PauseMenu
 
 var _wave_in_progress: bool = false
 var _is_game_over: bool = false
+var _is_paused: bool = false
 
 func _ready() -> void:
 	# Decoupled connections via Event Bus
@@ -39,6 +41,19 @@ func _ready() -> void:
 		wave_timer.timeout.connect(_on_wave_timer_timeout)
 		wave_timer.wait_time = initial_wave_delay
 		wave_timer.start()
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):  # ESC key
+		if not _is_game_over:
+			toggle_pause()
+
+func toggle_pause() -> void:
+	if _is_paused:
+		pause_menu.hide_pause_menu()
+		_is_paused = false
+	else:
+		pause_menu.show_pause_menu()
+		_is_paused = true
 
 func _on_enemy_spawned(enemy: Node2D) -> void:
 	if enemy.get_parent() == null:
@@ -107,6 +122,7 @@ func _trigger_game_over(reason: String) -> void:
 		return
 	
 	_is_game_over = true
+	_is_paused = false  # Reset pause state
 	wave_timer.stop()
 	_wave_in_progress = false
 	
@@ -121,6 +137,7 @@ func _trigger_game_over(reason: String) -> void:
 
 func restart_game() -> void:
 	_is_game_over = false
+	_is_paused = false  # Reset pause state
 	game_over_screen.visible = false
 	_wave_in_progress = false
 	

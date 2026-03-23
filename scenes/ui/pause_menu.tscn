@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://dldvddc2cwhwi"]
+
+[ext_resource type="Script" uid="uid://bnrba6l0hqehb" path="res://scripts/ui/pause_menu.gd" id="1_pause"]
+[ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://assets/fonts/ByteBounce.ttf" id="2_font"]
+
+[node name="PauseMenu" type="Control" unique_id=127617054]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_pause")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1433278398]
+layout_mode = 1
+color = Color(0, 0, 0, 0.8)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1612708979]
+layout_mode = 1
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+alignment = 1
+
+[node name="Title" type="Label" parent="VBoxContainer" unique_id=1751311107]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 64
+text = "PAUSED"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Spacer1" type="Control" parent="VBoxContainer" unique_id=443214094]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="ResumeButton" type="Button" parent="VBoxContainer" unique_id=1541328190]
+custom_minimum_size = Vector2(350, 60)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "RESUME"
+
+[node name="MenuButton" type="Button" parent="VBoxContainer" unique_id=975310847]
+custom_minimum_size = Vector2(350, 60)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "MAIN MENU"
+
+[node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=2031380694]
+custom_minimum_size = Vector2(350, 60)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "QUIT"
