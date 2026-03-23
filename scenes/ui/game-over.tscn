@@ -6,7 +6,27 @@
 
 [node name="GameOver" type="CanvasLayer" unique_id=174524675]
 process_mode = 3
+layer = 100
 script = ExtResource("1_gameover")
+
+[node name="BackgroundFill" type="ColorRect" parent="." unique_id=1111111120]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0.4, 1)
+
+[node name="BsodSprite" type="TextureRect" parent="." unique_id=817979819]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+modulate = Color(0.77, 0.36, 0.73, 1)
+texture = ExtResource("2_bsod")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Container" type="Control" parent="." unique_id=782770958]
 layout_mode = 3
@@ -17,19 +37,19 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="BsodSprite" type="Sprite2D" parent="Container" unique_id=817979819]
-modulate = Color(0.77076775, 0.36349636, 0.73442894, 1)
-position = Vector2(998.5, 499.50006)
-scale = Vector2(7.163333, 6.946429)
-texture = ExtResource("2_bsod")
-
 [node name="ErrorCode" type="Label" parent="Container" unique_id=1555630317]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 280.0
-offset_bottom = 320.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -200.0
+offset_right = 400.0
+offset_bottom = -160.0
 grow_horizontal = 2
+grow_vertical = 0
 theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 32
@@ -38,11 +58,17 @@ horizontal_alignment = 1
 
 [node name="ErrorMessage" type="Label" parent="Container" unique_id=1284425800]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 330.0
-offset_bottom = 370.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -150.0
+offset_right = 400.0
+offset_bottom = -110.0
 grow_horizontal = 2
+grow_vertical = 0
 theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 48
@@ -51,11 +77,17 @@ horizontal_alignment = 1
 
 [node name="TechnicalDebtLabel" type="Label" parent="Container" unique_id=432887227]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 420.0
-offset_bottom = 460.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -80.0
+offset_right = 300.0
+offset_bottom = -40.0
 grow_horizontal = 2
+grow_vertical = 0
 theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 28
@@ -64,37 +96,55 @@ horizontal_alignment = 1
 
 [node name="RAMUsageLabel" type="Label" parent="Container" unique_id=604234824]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 470.0
-offset_bottom = 510.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -30.0
+offset_right = 200.0
+offset_bottom = 10.0
 grow_horizontal = 2
+grow_vertical = 0
 theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 28
 text = "RAM USAGE: 100%"
 horizontal_alignment = 1
 
-[node name="WaveLabel" type="Label" parent="Container" unique_id=927934470]
+[node name="TimeSurvivedLabel" type="Label" parent="Container" unique_id=927934470]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 520.0
-offset_bottom = 560.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 60.0
 grow_horizontal = 2
+grow_vertical = 0
 theme_override_colors/font_color = Color(0.937, 0.937, 0.937, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 28
-text = "WAVE REACHED: 1"
+text = "TIME SURVIVED: 0:00"
 horizontal_alignment = 1
 
 [node name="RestartHint" type="Label" parent="Container" unique_id=384085103]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 620.0
-offset_bottom = 660.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = 120.0
+offset_right = 300.0
+offset_bottom = 160.0
 grow_horizontal = 2
+grow_vertical = 0
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 24
