@@ -43,3 +43,9 @@ signal status_effect_applied(effect_type: String, data: Dictionary)
 # --- World & Environment ---
 @warning_ignore("unused_signal")
 signal sector_changed(coords: Vector2i)
+
+# --- Game State Signals ---
+@warning_ignore("unused_signal")
+signal game_state_requested(state: String) # "menu" or "play"
+@warning_ignore("unused_signal")
+signal game_state_changed(state: String)

@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://uw00fl2a1hot" path="res://scenes/enemies/memory_leak.tscn" id="13_mem"]
 [ext_resource type="PackedScene" uid="uid://qro6ntfk8ax3" path="res://scenes/enemies/infinite_loop.tscn" id="14_loop"]
 [ext_resource type="PackedScene" uid="uid://bclu28njdi0r0" path="res://scenes/enemies/stack_overflow.tscn" id="15_stack"]
+[ext_resource type="PackedScene" uid="uid://pause_menu_scene" path="res://scenes/ui/pause_menu.tscn" id="16_pause"]
 
 [node name="World" type="Node2D" unique_id=1078444626]
 script = ExtResource("1_world")
@@ -44,6 +45,8 @@ spawn_height = 1080.0
 
 [node name="ControlDisruptor" type="Node" parent="." unique_id=2010902732]
 script = ExtResource("9_disrupt")
+
+[node name="PauseMenu" parent="." unique_id=123456789 instance=ExtResource("16_pause")]
 
 [node name="WaveTimer" type="Timer" parent="." unique_id=837085173]
 wait_time = 3.0

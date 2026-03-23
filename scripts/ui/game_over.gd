@@ -58,6 +58,8 @@ func show_game_over(ram_percentage: float, wave_number: int, reason: String = "H
 		ram_usage_label.text = "RAM USAGE: %.0f%%" % _final_ram
 	if wave_label:
 		wave_label.text = "WAVE REACHED: %d" % _final_wave
+	if restart_hint:
+		restart_hint.text = "PRESS SPACE TO RETURN TO MENU · PRESS ESC TO QUIT"
 	
 	visible = true
 	_start_glitch_effect()
@@ -116,17 +118,17 @@ func _input(event: InputEvent) -> void:
 		return
 	
 	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_select"):
-		_restart_game()
+		_return_to_menu()
 	elif event.is_action_pressed("ui_cancel"):
 		_quit_game()
 
-func _restart_game() -> void:
+func _return_to_menu() -> void:
 	_stop_glitch_effect()
 	visible = false
 	if get_tree():
 		get_tree().paused = false
 	restart_requested.emit()
-	get_tree().reload_current_scene()
+	GameEvents.game_state_requested.emit("menu")
 
 func _quit_game() -> void:
 	_stop_glitch_effect()
