@@ -35,6 +35,7 @@ var _disruption_duration: float = 2.0
 var _can_split: bool = true
 var _is_invulnerable: bool = false
 var _error_label: Label
+var _processing_label: Label
 var _shields: int = 0
 
 @onready var split_timer: Timer = $SplitCooldown
@@ -50,6 +51,9 @@ func _ready() -> void:
 	
 	complexity.complexity_changed.connect(_on_complexity_changed)
 	complexity.optimization_ready.connect(_on_optimization_ready)
+	complexity.processing_started.connect(_on_processing_started)
+	complexity.processing_completed.connect(_on_processing_completed)
+	complexity.processing_interrupted.connect(_on_processing_interrupted)
 	
 	visuals.update_visuals(complexity.get_current_complexity())
 	
@@ -67,6 +71,14 @@ func _setup_error_label() -> void:
 	_error_label.position = Vector2(-30, -60)
 	_error_label.modulate.a = 0.0
 	add_child(_error_label)
+	
+	_processing_label = Label.new()
+	_processing_label.text = "COMPILING..."
+	_processing_label.add_theme_color_override("font_color", Color(0, 1, 0.5))
+	_processing_label.add_theme_font_size_override("font_size", 14)
+	_processing_label.position = Vector2(-40, -80)
+	_processing_label.modulate.a = 0.0
+	add_child(_processing_label)
 
 func _physics_process(delta: float) -> void:
 	_update_state_timer(delta)
@@ -76,8 +88,7 @@ func _physics_process(delta: float) -> void:
 		State.IDLE:
 			_process_idle(delta)
 		State.PROCESSING:
-			_process_idle(delta)
-			_update_processing(delta)
+			pass
 		State.DISRUPTED:
 			_process_disrupted(delta)
 		State.ERROR:
@@ -136,26 +147,32 @@ func _enter_state(state: State) -> void:
 	match state:
 		State.IDLE:
 			visuals.set_state(State.IDLE)
+			_hide_compiling_label()
 		State.PROCESSING:
 			visuals.set_state(State.PROCESSING)
-			var duration = complexity.get_processing_time()
-			_state_timer = duration
+			_show_compiling_label()
 		State.DISRUPTED:
 			visuals.set_state(State.DISRUPTED)
+			_hide_compiling_label()
 		State.ERROR:
 			_start_error()
+			_hide_compiling_label()
 		State.FORKING:
 			visuals.set_state(State.FORKING)
 			_state_timer = fork_duration
 			_is_invulnerable = true
+			_hide_compiling_label()
 		State.DEAD:
 			visuals.set_state(State.DEAD)
+			_hide_compiling_label()
 
 func _exit_state(state: State) -> void:
 	match state:
 		State.PROCESSING:
 			if _state != State.PROCESSING:
 				visuals.clear_processing_effect()
+				if movement:
+					movement.set_processing_slow(false)
 		State.DISRUPTED:
 			visuals.clear_disruption_effect()
 		State.ERROR:
@@ -216,9 +233,9 @@ func start_processing() -> void:
 
 func _complete_processing() -> void:
 	visuals.clear_processing_effect()
-	complexity.refactor()
-	clear_ram(5.0)
-	_change_state(State.IDLE)
+	complexity.complete_refactor()
+	if movement:
+		movement.set_processing_slow(false)
 
 func _zombie_fork() -> void:
 	if not sub_thread_scene:
@@ -258,6 +275,37 @@ func _on_complexity_changed(new_data: PlayerComplexity) -> void:
 func _on_optimization_ready() -> void:
 	start_processing()
 
+func _on_processing_started() -> void:
+	if _state != State.PROCESSING:
+		_change_state(State.PROCESSING)
+		_state_timer = complexity.get_processing_time()
+	if movement:
+		movement.set_processing_slow(true)
+
+func _on_processing_completed() -> void:
+	if movement:
+		movement.set_processing_slow(false)
+	if _state == State.PROCESSING:
+		_change_state(State.IDLE)
+
+func _on_processing_interrupted() -> void:
+	if movement:
+		movement.set_processing_slow(false)
+	if visuals:
+		visuals.apply_interrupted_effect()
+	ScreenFX.shake(3.0, 0.2)
+	_hide_compiling_label()
+	if _state == State.PROCESSING:
+		_change_state(State.IDLE)
+
+func _show_compiling_label() -> void:
+	if _processing_label:
+		_processing_label.modulate.a = 1.0
+
+func _hide_compiling_label() -> void:
+	if _processing_label:
+		_processing_label.modulate.a = 0.0
+
 func set_control_disrupted(disrupted: bool, duration: float) -> void:
 	if disrupted:
 		_disruption_duration = duration
@@ -270,6 +318,11 @@ func set_control_disrupted(disrupted: bool, duration: float) -> void:
 
 func take_damage(amount: float) -> void:
 	if _is_invulnerable or _state == State.DEAD:
+		return
+	
+	if _state == State.PROCESSING and complexity:
+		complexity.restore_progress_to_80_percent()
+		_change_state(State.IDLE)
 		return
 	
 	if complexity:

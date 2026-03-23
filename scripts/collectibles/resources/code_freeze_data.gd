@@ -6,6 +6,8 @@ class_name CodeFreezeData
 func _init() -> void:
 	animation_name = "code_freeze"
 	spawn_weight = 0.3
+	requires_hover = false
+	float_animation = true
 
 func apply_effect(_player: Node2D) -> void:
 	if GameEvents:

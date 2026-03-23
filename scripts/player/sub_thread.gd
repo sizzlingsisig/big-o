@@ -32,7 +32,9 @@ func setup(launch_direction: Vector2, parent_complexity: PlayerComplexity) -> vo
 func _apply_visuals(data: PlayerComplexity) -> void:
 	sprite.play(data.animation_name)
 	sprite.modulate = data.color
-	sprite.modulate.a = 0.4 # Lessened opacity for the "ghost" child
+	sprite.modulate.a = 0.7
+	sprite.visible = true
+	sprite.z_index = 10
 	# Sub-threads are always a bit smaller than the main thread at that tier
 	sprite.scale = Vector2.ONE * data.scale * 0.7
 	$CollisionShape2D.shape.size = data.collider_size * 0.7

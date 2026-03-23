@@ -1,7 +1,7 @@
 extends CollectibleData
 class_name DataPacketData
 
-@export var fragment_amount: int = 1
+@export var fragment_amount: float = 2.0
 @export var heal_amount: float = 0.25
 
 func _init() -> void:
