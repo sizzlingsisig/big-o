@@ -6,13 +6,18 @@ extends BaseEnemy
 @export var crush_range: float = 80.0
 @export var retreat_range: float = 350.0
 @export var max_nested_blocks: int = 4
+@export var clone_scene: PackedScene
 
-enum State { APPROACHING, CRUSHING, RETREATING }
+var _clone_count: int = 0
+var _max_clones: int = 5
+
+enum State { APPROACHING, CRUSHING, EXPLODING, RETREATING }
 
 var _state: State = State.APPROACHING
 var _nested_blocks: int = 1
 var _crush_timer: float = 0.0
 var _crush_duration: float = 1.5
+var _clones: Array[Node2D] = []
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var block_container: Node2D = $BlockContainer
@@ -27,6 +32,8 @@ func _process_movement(delta: float) -> void:
 			_process_approach(delta)
 		State.CRUSHING:
 			_process_crush(delta)
+		State.EXPLODING:
+			_process_exploding(delta)
 		State.RETREATING:
 			_process_retreat(delta)
 	position += velocity * delta
@@ -44,7 +51,46 @@ func _process_crush(delta: float) -> void:
 	scale = Vector2.ONE * (1.0 + _nested_blocks * 0.3) * pulse_scale
 	
 	if _crush_timer <= 0:
+		_spawn_clones()
 		_start_retreat()
+
+func _process_exploding(delta: float) -> void:
+	velocity = Vector2.ZERO
+	_crush_timer -= delta
+	
+	scale = Vector2.ONE * (1.0 + _nested_blocks * 0.3) * (1.0 + sin(_crush_timer * 20.0) * 0.2)
+	
+	if _crush_timer <= 0:
+		_detonate()
+
+func _spawn_clones() -> void:
+	if not clone_scene or _clone_count >= _max_clones:
+		return
+	
+	var clone_count = mini(_max_clones - _clone_count, _nested_blocks + 1)
+	
+	for i in range(clone_count):
+		var clone = clone_scene.instantiate()
+		if clone:
+			var angle = (float(i) / clone_count) * TAU
+			var offset = Vector2.from_angle(angle) * 60.0
+			clone.global_position = global_position + offset
+			
+			if clone is BaseEnemy:
+				clone.activate(_target)
+				_clones.append(clone)
+				get_parent().add_child(clone)
+	
+	_clone_count += clone_count
+
+func _detonate() -> void:
+	for clone in _clones:
+		if is_instance_valid(clone):
+			if clone is BaseEnemy:
+				clone.take_damage(100.0)
+	
+	_clear_clones()
+	die()
 
 func _process_retreat(_delta: float) -> void:
 	if _target:
@@ -101,12 +147,20 @@ func _draw() -> void:
 		)
 		draw_rect(rect, color, false, 2.0)
 
+func _clear_clones() -> void:
+	for clone in _clones:
+		if is_instance_valid(clone):
+			clone.queue_free()
+	_clones.clear()
+	_clone_count = 0
+
 func _on_activated() -> void:
 	super._on_activated()
 	_state = State.APPROACHING
 	_nested_blocks = 1
 	_crush_timer = 0.0
 	scale = Vector2.ONE
+	_clear_clones()
 	
 	if sprite:
 		sprite.play("approach")
@@ -117,3 +171,4 @@ func _on_deactivated() -> void:
 	_nested_blocks = 1
 	_crush_timer = 0.0
 	scale = Vector2.ONE
+	_clear_clones()

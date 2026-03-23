@@ -1,7 +1,7 @@
 extends BaseEnemy
 
 @export_category("Null Pointer Behavior")
-@export var move_speed: float = 150.0
+@export var move_speed: float = 280.0
 
 var _direction: Vector2 = Vector2.ZERO
 var _initialized: bool = false
@@ -21,8 +21,8 @@ func _process_movement(delta: float) -> void:
 		_direction = (_target.global_position - global_position).normalized()
 		_initialized = true
 	
-	if sprite and _direction.x != 0:
-		sprite.scale.x = -sign(_direction.x)
+	if _direction != Vector2.ZERO:
+		rotation = _direction.angle()
 	
 	velocity = _direction * move_speed
 	position += velocity * delta
@@ -34,8 +34,7 @@ func _on_activated() -> void:
 	super._on_activated()
 	_direction = Vector2.ZERO
 	_initialized = false
-	if sprite:
-		sprite.scale.x = 1.0
+	rotation = 0.0
 
 func _on_deactivated() -> void:
 	super._on_deactivated()
