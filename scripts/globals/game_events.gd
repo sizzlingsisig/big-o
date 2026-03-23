@@ -39,6 +39,8 @@ signal wave_completed(wave_number: int)
 signal enemy_spawned(enemy: Node2D)
 @warning_ignore("unused_signal")
 signal status_effect_applied(effect_type: String, data: Dictionary)
+@warning_ignore("unused_signal")
+signal difficulty_increased(tier: int, time_elapsed: float)
 
 # --- World & Environment ---
 @warning_ignore("unused_signal")
