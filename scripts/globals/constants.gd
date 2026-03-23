@@ -1,4 +1,3 @@
-extends Node
 class_name BigOConstants
 
 ## Centralized system constants and definitions for "Big O: Technical Debt".

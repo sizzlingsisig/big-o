@@ -173,8 +173,8 @@ func return_to_pool(collectible: Node2D) -> void:
 	collectible.set_process(false)
 	collectible.set_physics_process(false)
 	collectible.visible = false
-	collectible.monitoring = false
-	collectible.monitorable = false
+	collectible.set_deferred("monitoring", false)
+	collectible.set_deferred("monitorable", false)
 	
 	if not _available_collectibles.has(collectible):
 		_available_collectibles.append(collectible)
@@ -218,29 +218,27 @@ func _try_respawn_dormant() -> void:
 	if _available_collectibles.is_empty() or not _player:
 		return
 	
-	# Slowly repopulate the exact sector the player is in if it gets empty
+	# Slowly repopulate sectors near the player
 	if _active_sectors.has(_current_sector):
-		if _active_sectors[_current_sector].size() < items_per_sector / 2:
-			var sector_center = Vector2(_current_sector.x * BigOConstants.SECTOR_SIZE + (BigOConstants.SECTOR_SIZE/2.0), _current_sector.y * BigOConstants.SECTOR_SIZE + (BigOConstants.SECTOR_SIZE/2.0))
-			var spawn_pos = sector_center + Vector2(randf_range(-900.0, 900.0), randf_range(-900.0, 900.0))
+		if _active_sectors[_current_sector].size() < items_per_sector / 2.0:
+			var spawn_pos = _player.global_position + Vector2(randf_range(-500.0, 500.0), randf_range(-500.0, 500.0))
 			
-			if spawn_pos.distance_to(_player.global_position) > 300.0:
-				var collectible = get_collectible()
-				if collectible:
-					if collectible.has_method("set_data"):
-						collectible.set_data(_get_random_collectible_data())
-					
-					collectible.global_position = spawn_pos
-					collectible.visible = true
-					collectible.monitoring = true
-					collectible.monitorable = true
-					collectible.set_process(true)
-					collectible.set_physics_process(true)
-					
-					if collectible.has_method("activate"):
-						collectible.activate()
-						
-					_active_sectors[_current_sector].append(collectible)
+			var collectible = get_collectible()
+			if collectible:
+				if collectible.has_method("set_data"):
+					collectible.set_data(_get_random_collectible_data())
+				
+				collectible.global_position = spawn_pos
+				collectible.visible = true
+				collectible.monitoring = true
+				collectible.monitorable = true
+				collectible.set_process(true)
+				collectible.set_physics_process(true)
+				
+				if collectible.has_method("activate"):
+					collectible.activate()
+				
+				_active_sectors[_current_sector].append(collectible)
 
 func get_pool_status() -> Dictionary:
 	return {

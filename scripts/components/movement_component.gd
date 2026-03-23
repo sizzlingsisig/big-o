@@ -18,6 +18,7 @@ var _external_force: Vector2 = Vector2.ZERO
 
 var _is_l1_cache_active: bool = false
 var _is_input_scrambled: bool = false
+var _is_processing_slow: bool = false
 var _l1_cache_timer: float = 0.0
 var _scramble_timer: float = 0.0
 
@@ -92,8 +93,10 @@ func process_movement(delta: float, target_pos: Vector2, current_complexity: Pla
 	
 	if _is_l1_cache_active:
 		lerp_weight = 1.0
+	
+	var speed_multiplier = 1.0 if _is_l1_cache_active else (0.3 if _is_processing_slow else 1.0)
 
-	parent.velocity = parent.velocity.lerp(target_direction * current_complexity.speed, lerp_weight)
+	parent.velocity = parent.velocity.lerp(target_direction * current_complexity.speed * speed_multiplier, lerp_weight)
 	
 	# Apply external forces (gravity wells, etc.)
 	parent.velocity += _external_force
@@ -123,3 +126,6 @@ func trigger_l1_cache(duration: float) -> void:
 func trigger_input_scramble(duration: float) -> void:
 	_is_input_scrambled = true
 	_scramble_timer = duration
+
+func set_processing_slow(active: bool) -> void:
+	_is_processing_slow = active

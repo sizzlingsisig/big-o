@@ -269,6 +269,8 @@ animations = [{
 radius = 40.0
 
 [node name="BaseCollectible" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
 script = ExtResource("1_base")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
@@ -279,4 +281,11 @@ animation = &"data_packet"
 autoplay = "data_packet"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_7020s")
+
+[node name="HoverZone" type="Area2D" parent="." unique_id=999999999]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HoverZone"]
 shape = SubResource("CircleShape2D_7020s")
