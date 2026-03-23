@@ -1,9 +1,9 @@
 extends Node2D
 class_name GameWorld
 
-@export var auto_start_waves: bool = true
-@export var initial_wave_delay: float = 3.0
-@export var time_between_waves: float = 8.0
+@export_category("Survival Mode")
+@export var auto_start_spawning: bool = true
+@export var initial_spawn_delay: float = 3.0
 
 @onready var player: Player = $Player
 @onready var projectiles_container: Node2D = $Projectiles
@@ -11,10 +11,9 @@ class_name GameWorld
 @onready var enemy_spawner: EnemySpawner = $EnemySpawner
 @onready var control_disruptor: PlayerControlDisruptor = $ControlDisruptor
 @onready var game_over_screen: Node = $GameOver
-@onready var wave_timer: Timer = $WaveTimer
 @onready var pause_menu: PauseMenu = $PauseMenu
 
-var _wave_in_progress: bool = false
+var _is_spawning_active: bool = false
 var _is_game_over: bool = false
 var _is_paused: bool = false
 
@@ -30,17 +29,17 @@ func _ready() -> void:
 		if is_instance_valid(CollectiblePool):
 			CollectiblePool.set_player(player)
 		enemy_spawner.enemy_spawned.connect(func(e): GameEvents.enemy_spawned.emit(e))
-		enemy_spawner.wave_started.connect(func(w): GameEvents.wave_started.emit(w))
-		enemy_spawner.wave_completed.connect(func(w): GameEvents.wave_completed.emit(w))
+		enemy_spawner.difficulty_increased.connect(_on_difficulty_increased)
+		GameEvents.difficulty_increased.connect(_on_difficulty_increased)
+		player.thread_forked.connect(_on_player_thread_forked)
 	else:
 		push_error("World: Player node not found!")
 	
 	game_over_screen.visible = false
 	
-	if auto_start_waves:
-		wave_timer.timeout.connect(_on_wave_timer_timeout)
-		wave_timer.wait_time = initial_wave_delay
-		wave_timer.start()
+	if auto_start_spawning:
+		enemy_spawner.start_spawning()
+		_is_spawning_active = true
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):  # ESC key
@@ -79,18 +78,8 @@ func _on_status_effect_applied(type: String, data: Dictionary) -> void:
 func _on_enemy_died(_enemy: BaseEnemy) -> void:
 	pass
 
-func _on_wave_completed(wave_number: int) -> void:
-	_wave_in_progress = false
-	print("Wave %d completed!" % wave_number)
-
-func _on_wave_timer_timeout() -> void:
-	start_wave()
-
-func start_wave() -> void:
-	if _wave_in_progress:
-		return
-	enemy_spawner.start_wave()
-	_wave_in_progress = true
+func _on_difficulty_increased(tier: int, time_elapsed: float) -> void:
+	print("Difficulty increased to Tier %d at %.1fs" % [tier, time_elapsed])
 
 func _on_player_thread_forked(thread: SubThread) -> void:
 	projectiles_container.add_child(thread)
@@ -98,8 +87,11 @@ func _on_player_thread_forked(thread: SubThread) -> void:
 func get_active_enemy_count() -> int:
 	return enemy_spawner.get_active_enemy_count()
 
-func get_current_wave() -> int:
-	return enemy_spawner.get_current_wave()
+func get_time_survived() -> float:
+	return enemy_spawner.get_elapsed_time()
+
+func get_current_tier() -> int:
+	return enemy_spawner.get_current_tier()
 
 func get_ram_meter() -> RAMMeter:
 	if not is_inside_tree() or not get_tree():
@@ -110,10 +102,12 @@ func get_ram_meter() -> RAMMeter:
 	return ram_meter as RAMMeter
 
 func _on_player_died() -> void:
+	print("[World] Player died signal received")
 	if not _is_game_over:
 		_trigger_game_over("PLAYER_TERMINATED")
 
 func _on_ram_overflow() -> void:
+	print("[World] RAM overflow - calling trigger_dead")
 	if player:
 		player.trigger_dead()
 
@@ -122,24 +116,33 @@ func _trigger_game_over(reason: String) -> void:
 		return
 	
 	_is_game_over = true
-	_is_paused = false  # Reset pause state
-	wave_timer.stop()
-	_wave_in_progress = false
+	_is_paused = false
+	enemy_spawner.stop_spawning()
+	_is_spawning_active = false
 	
 	var ram_meter = get_ram_meter()
 	var current_ram = 100.0
-	var current_wave = enemy_spawner.get_current_wave()
+	var time_survived = enemy_spawner.get_elapsed_time()
 	
 	if ram_meter:
 		current_ram = ram_meter.current_ram
 	
-	game_over_screen.show_game_over(current_ram, current_wave, reason)
+	if game_over_screen and game_over_screen.has_method("show_game_over"):
+		game_over_screen.visible = true
+		game_over_screen.show_game_over(current_ram, time_survived, reason)
+	else:
+		push_error("GameOver screen or method not found!")
+		print("game_over_screen: ", game_over_screen)
+		print("has method: ", game_over_screen.has_method("show_game_over") if game_over_screen else "N/A")
 
 func restart_game() -> void:
 	_is_game_over = false
-	_is_paused = false  # Reset pause state
+	_is_paused = false
 	game_over_screen.visible = false
-	_wave_in_progress = false
+	
+	var hud = get_node_or_null("HUD")
+	if hud:
+		hud.visible = true
 	
 	enemy_spawner.reset_spawner()
 	
@@ -153,6 +156,6 @@ func restart_game() -> void:
 	if player:
 		player.thread_forked.connect(_on_player_thread_forked)
 	
-	if auto_start_waves:
-		wave_timer.wait_time = initial_wave_delay
-		wave_timer.start()
+	if auto_start_spawning:
+		enemy_spawner.start_spawning()
+		_is_spawning_active = true

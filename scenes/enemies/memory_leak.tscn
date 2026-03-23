@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/enemies/memory_leak.gd" id="1_mem"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_health_component.gd" id="2_health"]
 [ext_resource type="Texture2D" path="res://assets/sprites/enemies.png" id="3_i18sd"]
+[ext_resource type="PackedScene" uid="uid://leakpuddle123" path="res://scenes/enemies/leak_puddle.tscn" id="4_puddle"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
 radius = 25.0
@@ -43,6 +44,8 @@ script = ExtResource("1_mem")
 speed = 80.0
 contact_damage = 0.0
 ram_damage = 12.0
+puddle_scene = ExtResource("4_puddle")
+puddle_interval = 3.0
 
 [node name="EnemyHealthComponent" type="Node" parent="."]
 script = ExtResource("2_health")

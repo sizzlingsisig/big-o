@@ -67,6 +67,7 @@ script = ExtResource("1_stack")
 speed = 80.0
 contact_damage = 0.0
 ram_damage = 20.0
+clone_scene = null
 
 [node name="EnemyHealthComponent" type="Node" parent="." unique_id=1349334993]
 script = ExtResource("2_health")

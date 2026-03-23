@@ -21,6 +21,10 @@ var _is_input_scrambled: bool = false
 var _is_processing_slow: bool = false
 var _l1_cache_timer: float = 0.0
 var _scramble_timer: float = 0.0
+var _movement_slow_factor: float = 1.0
+
+func apply_slow(factor: float) -> void:
+	_movement_slow_factor = factor
 
 func _process(delta: float) -> void:
 	if _is_l1_cache_active:
@@ -95,6 +99,7 @@ func process_movement(delta: float, target_pos: Vector2, current_complexity: Pla
 		lerp_weight = 1.0
 	
 	var speed_multiplier = 1.0 if _is_l1_cache_active else (0.3 if _is_processing_slow else 1.0)
+	speed_multiplier *= _movement_slow_factor
 
 	parent.velocity = parent.velocity.lerp(target_direction * current_complexity.speed * speed_multiplier, lerp_weight)
 	

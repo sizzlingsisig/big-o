@@ -1,25 +1,26 @@
 extends BaseEnemy
+class_name HeisenbergEnemy
 
 @export_category("Heisenberg Behavior")
-@export var disrupt_range: float = 180.0
-@export var disrupt_duration: float = 2.0
-@export var disrupt_cooldown: float = 8.0
+@export var teleport_range: float = 200.0
+@export var teleport_cooldown: float = 4.0
+@export var strike_damage: float = 15.0
 @export var move_speed: float = 50.0
 
-var _disrupt_cooldown_timer: float = 0.0
-var _is_disrupting: bool = false
-var _disrupt_timer: float = 0.0
+var _teleport_cooldown_timer: float = 0.0
+var _is_teleporting: bool = false
+var _teleport_count: int = 0
+var _max_teleports: int = 3
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var disrupt_effect: Node2D = $DisruptEffect
 
 func _ready() -> void:
 	super._ready()
-	_disrupt_cooldown_timer = disrupt_cooldown * 0.5
+	_teleport_cooldown_timer = teleport_cooldown * 0.5
 
 func _process_movement(delta: float) -> void:
-	if _is_disrupting:
-		velocity = velocity.lerp(Vector2.ZERO, delta * 10.0)
+	if _is_teleporting:
+		velocity = Vector2.ZERO
 	else:
 		_process_stalking(delta)
 	position += velocity * delta
@@ -30,66 +31,57 @@ func _process_stalking(delta: float) -> void:
 		velocity = velocity.lerp(direction * move_speed, delta * 2.0)
 
 func _process_behavior(delta: float) -> void:
-	if _is_disrupting:
-		_process_disrupt(delta)
-	elif _disrupt_cooldown_timer > 0:
-		_disrupt_cooldown_timer -= delta
-		_check_disrupt_trigger()
-
-func _process_disrupt(delta: float) -> void:
-	_disrupt_timer -= delta
+	_teleport_cooldown_timer = maxf(0.0, _teleport_cooldown_timer - delta)
 	
-	if sprite:
-		sprite.modulate = Color(sin(_disrupt_timer * 10.0) * 0.5 + 0.5, 0.5, 0.5)
-	
-	if _disrupt_timer <= 0:
-		_end_disrupt()
+	if _teleport_cooldown_timer <= 0 and _teleport_count < _max_teleports:
+		_trigger_teleport()
 
-func _check_disrupt_trigger() -> void:
+func _trigger_teleport() -> void:
+	if not _target:
+		return
+	
+	_is_teleporting = true
+	_teleport_count += 1
+	_teleport_cooldown_timer = teleport_cooldown
+	
+	var behind_offset = (_target.global_position - global_position).normalized() * -100.0
+	var random_offset = Vector2(randf_range(-80, 80), randf_range(-80, 80))
+	var teleport_pos = _target.global_position + behind_offset + random_offset
+	
+	var tween = create_tween()
+	tween.tween_property(self, "modulate:a", 0.0, 0.2)
+	tween.tween_callback(func():
+		global_position = teleport_pos
+	)
+	tween.tween_property(self, "modulate:a", 1.0, 0.2)
+	tween.tween_callback(func():
+		_is_teleporting = false
+		_attempt_strike()
+	)
+
+func _attempt_strike() -> void:
 	if not _target:
 		return
 	
 	var distance = global_position.distance_to(_target.global_position)
-	if distance <= disrupt_range and _disrupt_cooldown_timer <= 0:
-		_trigger_disrupt()
-
-func _trigger_disrupt() -> void:
-	_is_disrupting = true
-	_disrupt_timer = disrupt_duration
-	
-	apply_status_effect("disruption", {
-		"duration": disrupt_duration,
-		"strength": move_speed # Or some other value
-	})
-	
-	if disrupt_effect:
-		disrupt_effect.trigger()
-	
-	if sprite:
-		sprite.play("disrupt")
-
-func _end_disrupt() -> void:
-	_is_disrupting = false
-	_disrupt_cooldown_timer = disrupt_cooldown
-	
-	if sprite:
-		sprite.play("idle")
-		sprite.modulate = Color.WHITE
+	if distance <= 100.0:
+		_target.take_damage(strike_damage)
+		_target.add_ram(ram_damage)
 
 func _on_activated() -> void:
 	super._on_activated()
-	_is_disrupting = false
-	_disrupt_timer = 0.0
-	_disrupt_cooldown_timer = disrupt_cooldown * 0.5
+	_is_teleporting = false
+	_teleport_count = 0
+	_teleport_cooldown_timer = teleport_cooldown * 0.5
 	
 	if sprite:
 		sprite.modulate = Color.WHITE
 
 func _on_deactivated() -> void:
 	super._on_deactivated()
-	_is_disrupting = false
-	_disrupt_timer = 0.0
-	_disrupt_cooldown_timer = 0.0
+	_is_teleporting = false
+	_teleport_count = 0
+	_teleport_cooldown_timer = 0.0
 	
 	if sprite:
 		sprite.modulate = Color.WHITE

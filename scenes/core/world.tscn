@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://b1m8s8k6l8m4q" path="res://scenes/ui/hud.tscn" id="2_hud"]
 [ext_resource type="PackedScene" uid="uid://bgb13aasg840w" path="res://scenes/player/player.tscn" id="3_player"]
 [ext_resource type="Script" uid="uid://byfy7vrpkw3jo" path="res://scripts/managers/progression_manager.gd" id="4_progression"]
-[ext_resource type="PackedScene" uid="uid://hjwjqqkxais5" path="res://scenes/ui/game-over.tscn" id="6_gameover"]
 [ext_resource type="Script" uid="uid://dsf7hlrx7ebpr" path="res://scripts/enemies/enemy_spawner.gd" id="8_spawner"]
 [ext_resource type="Script" uid="uid://dx5whhyhctlq6" path="res://scripts/player/player_control_disruptor.gd" id="9_disrupt"]
 [ext_resource type="PackedScene" uid="uid://g1x2aja51bla" path="res://scenes/enemies/null_pointer.tscn" id="10_np"]
@@ -13,11 +12,14 @@
 [ext_resource type="PackedScene" uid="uid://26agqosv2y15" path="res://scenes/enemies/spaghetti_code.tscn" id="12_spag"]
 [ext_resource type="PackedScene" uid="uid://uw00fl2a1hot" path="res://scenes/enemies/memory_leak.tscn" id="13_mem"]
 [ext_resource type="PackedScene" uid="uid://qro6ntfk8ax3" path="res://scenes/enemies/infinite_loop.tscn" id="14_loop"]
+[ext_resource type="PackedScene" uid="uid://hjwjqqkxais5" path="res://scenes/ui/game-over.tscn" id="15_0d8of"]
 [ext_resource type="PackedScene" uid="uid://bclu28njdi0r0" path="res://scenes/enemies/stack_overflow.tscn" id="15_stack"]
-[ext_resource type="PackedScene" uid="uid://pause_menu_scene" path="res://scenes/ui/pause_menu.tscn" id="16_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="16_pause"]
 
 [node name="World" type="Node2D" unique_id=1078444626]
 script = ExtResource("1_world")
+
+[node name="GameOver" parent="." unique_id=174524675 instance=ExtResource("15_0d8of")]
 
 [node name="Projectiles" type="Node2D" parent="." unique_id=367406278]
 
@@ -31,17 +33,10 @@ script = ExtResource("4_progression")
 [node name="HUD" parent="." unique_id=495151903 instance=ExtResource("2_hud")]
 
 [node name="Player" parent="." unique_id=872388645 instance=ExtResource("3_player")]
-control_disruptor = NodePath("ControlDisruptor")
 
 [node name="EnemySpawner" type="Node2D" parent="." unique_id=1109042485]
 script = ExtResource("8_spawner")
 enemy_scenes = Array[PackedScene]([ExtResource("10_np"), ExtResource("11_heis"), ExtResource("12_spag"), ExtResource("13_mem"), ExtResource("14_loop"), ExtResource("15_stack")])
-base_wave_size = 3
-enemies_per_wave_increase = 3
-spawn_delay = 1.5
-wave_cooldown = 8.0
-spawn_width = 1920.0
-spawn_height = 1080.0
 
 [node name="ControlDisruptor" type="Node" parent="." unique_id=2010902732]
 script = ExtResource("9_disrupt")
@@ -51,5 +46,3 @@ script = ExtResource("9_disrupt")
 [node name="WaveTimer" type="Timer" parent="." unique_id=837085173]
 wait_time = 3.0
 one_shot = true
-
-[node name="GameOver" parent="." instance=ExtResource("6_gameover")]

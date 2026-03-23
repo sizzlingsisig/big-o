@@ -6,20 +6,27 @@ signal restart_requested
 @onready var error_message: Label = $Container/ErrorMessage
 @onready var technical_debt_label: Label = $Container/TechnicalDebtLabel
 @onready var ram_usage_label: Label = $Container/RAMUsageLabel
-@onready var wave_label: Label = $Container/WaveLabel
+@onready var time_survived_label: Label = $Container/TimeSurvivedLabel
 @onready var restart_hint: Label = $Container/RestartHint
 @onready var container: Control = $Container
-@onready var bsod_sprite: Sprite2D = $Container/BsodSprite
+@onready var bsod_sprite: TextureRect = $BsodSprite
 @onready var glitch_overlay: Control = $GlitchOverlay
 
 var _crash_reason: String = "HEAP_OVERFLOW"
 var _final_ram: float = 100.0
-var _final_wave: int = 1
+var _final_time_survived: float = 0.0
 var _is_glitching: bool = false
 
 func _ready() -> void:
 	visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	_add_glitch_timer()
+
+func show_game_over(ram_percentage: float, time_survived: float, reason: String = "HEAP_OVERFLOW") -> void:
+	_final_ram = ram_percentage
+	_final_time_survived = time_survived
+	_crash_reason = reason
 	
 	var crash_codes: Array[String] = [
 		"0x0000000D", "0x0000000C", "0x0000000A", "0x00000007",
@@ -37,33 +44,34 @@ func _ready() -> void:
 	]
 	
 	var index = randi() % crash_codes.size()
-	_crash_reason = crash_codes[index] if randf() > 0.7 else "HEAP_OVERFLOW"
+	var code = crash_codes[index] if _crash_reason == "HEAP_OVERFLOW" else _crash_reason
 	
 	if error_code:
-		error_code.text = "A fatal exception (" + _crash_reason + ") has been detected in your system."
+		error_code.text = "A fatal exception (" + code + ") has been detected in your system."
 	
 	if error_message:
-		error_message.text = crash_messages[index]
-	
-	_add_glitch_timer()
-
-func show_game_over(ram_percentage: float, wave_number: int, reason: String = "HEAP_OVERFLOW") -> void:
-	_final_ram = ram_percentage
-	_final_wave = wave_number
-	_crash_reason = reason
+		error_message.text = crash_messages[index] if _crash_reason == "HEAP_OVERFLOW" else "FATAL_SYSTEM_ERROR"
 	
 	if technical_debt_label:
 		technical_debt_label.text = "TECHNICAL DEBT: " + _crash_reason
 	if ram_usage_label:
 		ram_usage_label.text = "RAM USAGE: %.0f%%" % _final_ram
-	if wave_label:
-		wave_label.text = "WAVE REACHED: %d" % _final_wave
+	if time_survived_label:
+		var minutes = int(_final_time_survived) / 60
+		var seconds = int(_final_time_survived) % 60
+		time_survived_label.text = "TIME SURVIVED: %d:%02d" % [minutes, seconds]
 	if restart_hint:
 		restart_hint.text = "PRESS SPACE TO RETURN TO MENU · PRESS ESC TO QUIT"
 	
 	visible = true
-	_start_glitch_effect()
 	
+	# Hide HUD if present
+	var hud = get_parent().get_node_or_null("HUD")
+	if hud:
+		hud.visible = false
+		
+	_start_glitch_effect()
+
 	if get_tree():
 		get_tree().paused = true
 

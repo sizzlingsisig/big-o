@@ -16,8 +16,9 @@ var _is_dying: bool = false
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 func _ready() -> void:
-	# Add some slight random rotation to the launch
 	_direction = _direction.rotated(randf_range(-0.1, 0.1))
+	z_index = 10
+	visible = true
 
 func setup(launch_direction: Vector2, parent_complexity: PlayerComplexity) -> void:
 	_direction = launch_direction
@@ -35,9 +36,10 @@ func _apply_visuals(data: PlayerComplexity) -> void:
 	sprite.modulate.a = 0.7
 	sprite.visible = true
 	sprite.z_index = 10
-	# Sub-threads are always a bit smaller than the main thread at that tier
 	sprite.scale = Vector2.ONE * data.scale * 0.7
 	$CollisionShape2D.shape.size = data.collider_size * 0.7
+	modulate = data.color
+	modulate.a = 0.7
 
 func _physics_process(delta: float) -> void:
 	if _is_dying:

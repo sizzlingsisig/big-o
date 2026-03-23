@@ -119,6 +119,24 @@ func apply_forking_effect() -> void:
 	_state_tween = create_tween().set_parallel(true)
 	_state_tween.tween_property(sprite, "modulate", Color.WHITE, 0.1)
 	_state_tween.tween_property(sprite, "scale", _base_scale * 1.2, 0.15)
+	_spawn_ghost()
+
+func _spawn_ghost() -> void:
+	if not sprite:
+		return
+	
+	var ghost = Sprite2D.new()
+	ghost.texture = sprite.sprite_frames.get_frame(sprite.animation, sprite.frame)
+	ghost.position = sprite.position
+	ghost.modulate = sprite.modulate
+	ghost.modulate.a = 0.3
+	ghost.scale = sprite.scale * 1.1
+	get_tree().current_scene.add_child(ghost)
+	
+	var tween = create_tween()
+	tween.tween_property(ghost, "modulate:a", 0.0, 0.3)
+	tween.tween_property(ghost, "position", ghost.position + Vector2(-20, -20), 0.3)
+	tween.tween_callback(ghost.queue_free)
 
 func clear_forking_effect() -> void:
 	if _state_tween:
