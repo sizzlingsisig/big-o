@@ -64,10 +64,35 @@ When hit by an enemy:
 * **Cooldown:** 2 seconds
 
 ### Clean Code Packets (Collectibles)
-* **Refactor Packet:** Core drop. Lowers tier by one step (e.g., $O(n^2) \rightarrow O(n \log n)$).
-* **Big-O Shortcut:** Rare drop. Skips two tiers instantly.
-* **Cache Hit:** Temp speed boost. Max velocity and zero inertia for 5 seconds.
-* **Kernel Fragment:** End-game collectible. Collecting all 3 triggers the $O(1)$ transition.
+The win condition is pure grind and survival. Collecting data fills a Complexity Meter on the HUD. When full, the player automatically drops one tier. The meter resets after each tier drop.
+
+**Complexity Meter Scaling:**
+| Current Tier | Commits Required |
+|--------------|------------------|
+| $O(2^n) \rightarrow O(n^2)$ | 2 |
+| $O(n^2) \rightarrow O(n \log n)$ | 3 |
+| $O(n \log n) \rightarrow O(n)$ | 4 |
+| $O(n) \rightarrow O(\log n)$ | 5 |
+| $O(\log n) \rightarrow O(1)$ | 6 |
+
+*Why it scales:* Early tiers are miserable to play, so relief comes faster. The final stretch toward $O(1)$ is intentionally the hardest gate — those last 6 commits while fast and tiny should feel like a sprint against the clock.
+
+**The Final 7 Items (Sprite Sheet Plan):**
+| # | Name | Rarity | Sprite Idea | Effect |
+|---|------|--------|-------------|--------|
+| 1 | **Refactor Commit** | Common |  Floppy disk | Fills Complexity Meter by 1 full commit (scaled per tier). |
+| 2 | **Data Packet** | Abundant |  Tiny glowing square | Fills Complexity Meter by a small fraction of a commit. |
+| 3 | **Garbage Collector** | Common |  Trash can | –15% RAM over 4s. |
+| 4 | **L1 Cache Hit** | Common |  Lightning bolt | Max speed + 0 inertia for 5s. |
+| 5 | **Hotfix Patch** | Rare |  Bandage | RAM frozen for 8s. |
+| 6 | **Corrupted GC** | Uncommon |  Glitched trash can | Mimics GC, flickers at 60–150px, drifts away on reveal, +20% RAM on pickup. |
+| 7 | **Code Freeze** | Rare |  Ice cube / Snowflake | Freezes all enemies in place for 4s. |
+
+### Infinite World & Off-Screen Tracking
+The game features an infinite scrolling continuous world. 
+* **Dynamic Spawning:** Enemies and collectibles spawn relative to the player's position rather than a static map center.
+* **Distance Culling:** Enemies leaving the screen enter a simplified AI state to save CPU, and are only deleted if they fall too far behind the player (`CULL_DISTANCE`).
+* **Sector-Based Backgrounds:** The background dynamically shifts visual patterns based on the player's Euclidean distance from the origin.
 
 ### Visual Polish & Shaders
 * **Brainrot Shaders:** Visual "Deep-Fry" filters, chromatic aberration, and screen shakes that intensify as the system nears a 100% RAM crash.
@@ -108,6 +133,13 @@ Primary score metric representing the amount of data processed and optimized.
 ### Event-Driven Architecture
 * **Decoupled HUD:** `HUD` connects to managers in `_ready()` and only updates labels when signals (e.g., `ram_changed`, `sector_changed`) are received, avoiding per-frame polling.
 * **Spawner Signals:** `EnemySpawner` emits signals for all enemy behaviors, which the `World` root connects to the player's status effect handlers.
+* **Autoloads:** Heavy use of Singletons (`GameEvents`, `ScreenFX`, `CollectiblePool`) for global system coordination.
+
+### Object Pooling & Memory Management
+* **Collectible Pool:** To prevent Garbage Collection stutters in an infinite world, collectibles (`CodeFragment`, `RefactorPacket`) are managed by a `CollectiblePoolManager`. They are deactivated and recycled into a pool rather than being constantly instantiated and destroyed (`queue_free()`).
+
+### Player State Machine
+* The player controller uses a robust, decoupled State Machine pattern (`scripts/player/player_states/`) with distinct nodes for `Idle`, `Processing`, `Disrupted`, `Error`, `Forking`, and `Dead` states, ensuring clean logic separation.
 
 ### Scene Hierarchy
 ```
@@ -142,6 +174,7 @@ World
 ### UI Elements
 * **RAM Meter:** Vertical progress bar showing current RAM usage
 * **Complexity Display:** Shows current Big O tier
+* **Complexity Meter:** Horizontal bar tracking commits until the next tier drop. Flashes and resets on tier drop with a "compile complete" sound cue.
 * **Wave Counter:** Current wave number
 
 ---
@@ -180,8 +213,9 @@ World
 | Milestone 1: Logic Core | ✅ Complete | Tier-switching system and scale-based movement logic |
 | Milestone 2: Debt AI | ✅ Complete | All 6 enemy types with behaviors |
 | Milestone 3: Visual Identity | ✅ Complete | RAM Gauge UI, game over screen, player hit feedback |
-| Milestone 4: Polish | 🔄 In Progress | Sound design, victory sequence at $O(1)$ |
-| Milestone 5: Release | ⬜ Pending | Final testing and deployment |
+| Milestone 4: System Refactor | ✅ Complete | Infinite world spawner, object pooling, player state machine, and modular enemies |
+| Milestone 5: Polish | 🔄 In Progress | Sound design, victory sequence at $O(1)$ |
+| Milestone 6: Release | ⬜ Pending | Final testing and deployment |
 
 **Platform:** Web (itch.io) / PC  
 **Audience:** CS Students, Indie gamers, Memers (Ages 15–30)
