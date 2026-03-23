@@ -10,7 +10,7 @@ This diagram shows the relationships between the Player, its components, the Glo
 graph TD
     %% Simplified Styling
     classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
-    classDef aux fill:#f5f5f5,stroke:#616161,stroke-width:2px;
+    classDef aux fill:#f5f5f5,stroke:#000000,stroke-width:2px;
 
     subgraph World_Systems [World & Game Logic]
         CM[CollectiblePoolManager]
