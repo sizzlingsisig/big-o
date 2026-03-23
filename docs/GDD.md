@@ -57,7 +57,9 @@ When hit by an enemy:
 2. "ERROR" label appears above player
 3. Debug console logs: `[ENEMY] X hit player! RAM +Y%`
 
-### The "Zombie Fork"*"Throw your child to death; his ghost lingers in your system, bloating your execution."*
+### The "Zombie Fork"
+*"Throw your child to death; his ghost lingers in your system, bloating your execution."*
+
 **Mechanism:** Split off a ghostly child process that flies forward.
 * **Benefit:** Instantly clears 20% RAM
 * **Cost:** Forces player into a slower Big O tier (accumulated debt)
@@ -77,16 +79,17 @@ The win condition is pure grind and survival. Collecting data fills a Complexity
 
 *Why it scales:* Early tiers are miserable to play, so relief comes faster. The final stretch toward $O(1)$ is intentionally the hardest gate — those last 6 commits while fast and tiny should feel like a sprint against the clock.
 
-**The Final 7 Items (Sprite Sheet Plan):**
-| # | Name | Rarity | Sprite Idea | Effect |
-|---|------|--------|-------------|--------|
-| 1 | **Refactor Commit** | Common |  Floppy disk | Fills Complexity Meter by 1 full commit (scaled per tier). |
-| 2 | **Data Packet** | Abundant |  Tiny glowing square | Fills Complexity Meter by a small fraction of a commit. |
-| 3 | **Garbage Collector** | Common |  Trash can | –15% RAM over 4s. |
-| 4 | **L1 Cache Hit** | Common |  Lightning bolt | Max speed + 0 inertia for 5s. |
-| 5 | **Hotfix Patch** | Rare |  Bandage | RAM frozen for 8s. |
-| 6 | **Corrupted GC** | Uncommon |  Glitched trash can | Mimics GC, flickers at 60–150px, drifts away on reveal, +20% RAM on pickup. |
-| 7 | **Code Freeze** | Rare |  Ice cube / Snowflake | Freezes all enemies in place for 4s. |
+### Collectible Items
+
+| # | Name | Rarity | Sprite | Effect | Color |
+|---|------|--------|--------|--------|-------|
+| 1 | **Refactor Commit** | Common | 💾 Floppy disk | Fills Complexity Meter by 1 full commit (scaled per tier). | #00FF88 (mint green) |
+| 2 | **Data Packet** | Abundant | 🟦 Tiny square | Fills Complexity Meter by a small fraction of a commit. | #00FFFF (cyan) |
+| 3 | **Garbage Collector** | Common | 🗑️ Trash can | –15% RAM over 4s. | #AA00FF (purple) |
+| 4 | **L1 Cache Hit** | Common | ⚡ Lightning bolt | Max speed + 0 inertia for 5s. | #0088FF (electric blue) |
+| 5 | **Hotfix Patch** | Rare | 🩹 Bandage roll | RAM frozen for 8s. | #FFAA00 (orange) |
+| 6 | **Corrupted GC** | Uncommon | 🗑️ Glitched trash | Mimics GC, flickers at 60–150px, drifts away on reveal, +20% RAM on pickup. | #FF0066 (hot pink) |
+| 7 | **Code Freeze** | Rare | ❄️ Ice cube | Freezes all enemies in place for 4s. | #FFFFFF (white/ice) |
 
 ### Infinite World & Off-Screen Tracking
 The game features an infinite scrolling continuous world. 
@@ -136,7 +139,7 @@ Primary score metric representing the amount of data processed and optimized.
 * **Autoloads:** Heavy use of Singletons (`GameEvents`, `ScreenFX`, `CollectiblePool`) for global system coordination.
 
 ### Object Pooling & Memory Management
-* **Collectible Pool:** To prevent Garbage Collection stutters in an infinite world, collectibles (`CodeFragment`, `RefactorPacket`) are managed by a `CollectiblePoolManager`. They are deactivated and recycled into a pool rather than being constantly instantiated and destroyed (`queue_free()`).
+* **Collectible Pool:** To prevent Garbage Collection stutters in an infinite world, collectibles are managed by a `CollectiblePoolManager`. They are deactivated and recycled into a pool rather than being constantly instantiated and destroyed (`queue_free()`).
 
 ### Player State Machine
 * The player controller uses a robust, decoupled State Machine pattern (`scripts/player/player_states/`) with distinct nodes for `Idle`, `Processing`, `Disrupted`, `Error`, `Forking`, and `Dead` states, ensuring clean logic separation.
@@ -180,9 +183,42 @@ World
 ---
 
 ## Art Style
-**Aesthetic:** "Terminal Brainrot." A mix of high-end cyber-hacker visuals and distorted, low-quality meme energy.
-* **References:** The clean grids of *Agar.io*, the chaotic particle effects of *Vampire Survivors*, and the glitch-aesthetic of *Cyberpunk 2077*.
-* **Visual Evolution:** $O(2^n)$ is red, shaky, and pixelated; $O(1)$ is pure white, glowing, and high-definition.
+
+### Aesthetic
+"Terminal Brainrot." A mix of high-end cyber-hacker visuals and distorted, low-quality meme energy.
+
+### Visual Evolution
+* $O(2^n)$ is red, shaky, and pixelated
+* $O(1)$ is pure white, glowing, and high-definition
+
+### References
+* The clean grids of *Agar.io*
+* The chaotic particle effects of *Vampire Survivors*
+* The glitch-aesthetic of *Cyberpunk 2077*
+
+### Sprite Sheet Specifications
+
+#### Collectibles Sprite Sheet
+**Layout:** 2 columns x 14 rows grid
+* Column 1: Idle frame
+* Column 2: Sparkle/active frame
+
+| Row | Item | Glow Color |
+|-----|------|------------|
+| 1 | Refactor Commit | #00FF88 (mint green) |
+| 2 | Data Packet | #00FFFF (cyan) |
+| 3 | Garbage Collector | #AA00FF (purple) |
+| 4 | L1 Cache Hit | #0088FF (electric blue) |
+| 5 | Hotfix Patch | #FFAA00 (orange) |
+| 6 | Corrupted GC | #FF0066 (hot pink) |
+| 7 | Code Freeze | #FFFFFF (white) |
+
+**Specs:**
+- Cell size: 64x64px
+- Cell spacing: 4px transparent gap
+- Final size: 136x912px
+- Background: WHITE (#FFFFFF)
+- Style: Neon glow outlines (2px stroke), cyberpunk terminal aesthetic
 
 ---
 
@@ -214,7 +250,7 @@ World
 | Milestone 2: Debt AI | ✅ Complete | All 6 enemy types with behaviors |
 | Milestone 3: Visual Identity | ✅ Complete | RAM Gauge UI, game over screen, player hit feedback |
 | Milestone 4: System Refactor | ✅ Complete | Infinite world spawner, object pooling, player state machine, and modular enemies |
-| Milestone 5: Polish | 🔄 In Progress | Sound design, victory sequence at $O(1)$ |
+| Milestone 5: Polish | 🔄 In Progress | Sound design, collectible sprites, victory sequence at $O(1)$ |
 | Milestone 6: Release | ⬜ Pending | Final testing and deployment |
 
 **Platform:** Web (itch.io) / PC  
