@@ -34,22 +34,24 @@ The 6 tiers heavily modify movement physics, collision, and input responsiveness
 | $O(1)$ (Constant) | 220 px/s | 22px | 0.0 | 0.0s |
 
 ### RAM Gauge (Health)
-A survival health bar. RAM **only increases** when enemies hit you. The only way to reduce RAM is to use the **Zombie Fork** ability (Spacebar), which clears 20% RAM.
+A survival health bar tracking system instability. 
+* **Increase:** RAM increases when enemies hit you or when you consume "Corrupted GC" packets.
+* **Decrease:** Using the **Zombie Fork** ability (Spacebar) clears 20% RAM immediately. Some collectibles also drain RAM over time.
 
-**Critical Threshold:** 70% - triggers warning state  
-**Game Over:** 100% - triggers BSOD crash screen
+**Critical Threshold:** 70% - triggers warning state and visual glitches  
+**Game Over:** 100% - triggers BSOD (Blue Screen of Death) crash screen
 
 ### Technical Debt (Enemies)
-All enemies are lightweight `Area2D` entities with no physics overhead. They all destroy themselves on player contact.
+Enemies deal **RAM Damage** (instability) and **Contact Damage** (immediate Tier Downgrade). They are destroyed on player contact.
 
-| Enemy | RAM Damage | Behavior |
+| Enemy | RAM / Tier Damage | Behavior |
 |-------|-----------|---------|
-| **Null Pointer** | 10% | Fast-moving. Locks direction toward player on spawn, then moves in a straight line. |
-| **Memory Leak** | 12% burst | Drifting blob that grows over time. Deals continuous RAM drain (1.5%/sec) while overlapping. |
-| **Infinite Loop** | 15% | Orbits the arena. Creates a gravitational pull that drags the player toward it. |
-| **Heisenberg** | 18% | Stalks the player slowly. Periodically disrupts player controls for 2 seconds. |
-| **Spaghetti Code** | 15% | Slow-moving. Shoots tether cables that drag the player. |
-| **Stack Overflow** | 20% | Approaches, crushes (brief pause), then retreats. Gets larger with each crush. |
+| **Null Pointer** | 10% / 1 Tier | Fast-moving. Locks direction on spawn, then moves in a straight line. |
+| **Memory Leak** | 12% / 1 Tier | Continuous RAM drain (1.5%/sec) while overlapping. |
+| **Infinite Loop** | 15% / 1 Tier | Creates a gravitational pull dragging the player toward it. |
+| **Heisenberg** | 18% / 1 Tier | Periodically disrupts player controls for 2 seconds. |
+| **Spaghetti Code** | 15% / 1 Tier | Shoots tether cables that drag the player. |
+| **Stack Overflow** | 20% / 1 Tier | Approaches, crushes (brief pause), then retreats. |
 
 ### Player Feedback
 When hit by an enemy:
@@ -125,9 +127,11 @@ Primary score metric representing the amount of data processed and optimized.
 
 ## Technical Architecture
 
-### Entity Component System (ECS) Hybrid
-* Entities use dedicated components (`MovementComponent`, `VisualsComponent`, `ComplexityManager`) for modular logic.
-* Decoupled communication via Signals (e.g., `thread_forked`, `player_gravity_pull`, `leaking_ram`).
+For a deep dive into the system design, components, and data flow, see [Architecture.md](./architecture.md).
+
+### Core Design
+* **Component-Based Entities:** Entities like the Player and Enemies use modular components (`MovementComponent`, `VisualsComponent`, `SystemResourcesComponent`) to encapsulate logic.
+* **Event-Driven UI:** The `HUD` and `GameOver` screens are decoupled from the game logic, updating via the `GameEvents` singleton.
 
 ### Performance Optimization
 * **Zero-Allocation Physics:** `MovementComponent` uses `PackedFloat64Array` and `PackedVector2Array` to track input history, ensuring zero garbage allocation during the critical physics loop.
