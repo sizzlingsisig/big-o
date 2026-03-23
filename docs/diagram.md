@@ -8,23 +8,20 @@ This diagram shows the relationships between the Player, its components, the Glo
 
 ```mermaid
 graph TD
-    %% Styling
-    classDef singleton fill:#ffcc99,stroke:#333,stroke-width:2px;
-    classDef playerComp fill:#ccffcc,stroke:#333,stroke-width:2px;
-    classDef resource fill:#ffffcc,stroke:#333,stroke-width:2px;
-    classDef ui fill:#e6ccff,stroke:#333,stroke-width:2px;
-    classDef manager fill:#cce6ff,stroke:#333,stroke-width:2px;
+    %% Simplified Styling
+    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef aux fill:#f5f5f5,stroke:#616161,stroke-width:2px;
 
     subgraph World_Systems [World & Game Logic]
         CM[CollectiblePoolManager]
         ES[EnemySpawner]
     end
-    class CM,ES manager;
+    class CM,ES core;
 
     subgraph Global_Bus [Communication Hub]
         GE[GameEvents Singleton]
     end
-    class GE singleton;
+    class GE core;
 
     subgraph Player_Entity [Player Container]
         P[player.gd]
@@ -33,18 +30,18 @@ graph TD
         SRC[SystemResourcesComponent]
         CXM[ComplexityManager]
     end
-    class P,MC,VC,SRC,CXM playerComp;
+    class P,MC,VC,SRC,CXM core;
 
     subgraph Config_Data [Resources]
         PCR[PlayerComplexity .tres]
     end
-    class PCR resource;
+    class PCR aux;
 
     subgraph UI_Layer [User Interface]
         HUD[HUD / Overlay]
         GOS[GameOver / BSOD]
     end
-    class HUD,GOS ui;
+    class HUD,GOS aux;
 
     %% Logic Connections (Direct Calls)
     P -->|Manages| MC
@@ -73,8 +70,10 @@ graph TD
 
     %% Legend
     subgraph Legend
-        L1[Solid Line = Direct Call]
-        L2[Dashed Line = Signal/Event]
+        L1[Blue = Core Logic]
+        L2[Gray = Supporting/UI]
+        L3[Solid Line = Direct Call]
+        L4[Dashed Line = Signal/Event]
     end
 ```
 
