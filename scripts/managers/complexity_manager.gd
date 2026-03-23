@@ -26,7 +26,7 @@ signal processing_interrupted
 var current_index: int = 0
 var current_complexity: PlayerComplexity
 var current_fragments: float = 0.0
-var is_processing: bool = false
+var _is_processing: bool = false
 
 func get_required_fragments() -> int:
 	if current_index >= fragments_per_tier.size():
@@ -54,7 +54,7 @@ func add_optimization_fragment(amount: float = 1.0) -> void:
 	var required = float(get_required_fragments())
 	if current_fragments >= required:
 		current_fragments = required
-		if not is_processing:
+		if not _is_processing:
 			optimization_ready.emit()
 	
 	optimization_progress_changed.emit(current_fragments, required)
@@ -65,7 +65,7 @@ func can_refactor_now() -> bool:
 ## Moves the player to a more efficient tier (e.g., O(n) -> O(log n)).
 func refactor() -> bool:
 	if current_index < complexity_tiers.size() - 1:
-		is_processing = true
+		_is_processing = true
 		processing_started.emit()
 		print("Processing started. Time: ", get_processing_time(), "s")
 		return true
@@ -79,7 +79,7 @@ func complete_refactor() -> void:
 	current_fragments = 0.0
 	optimization_progress_changed.emit(0.0, float(get_required_fragments()))
 	print("Refactored! Now at: ", current_complexity.tier_name)
-	is_processing = false
+	_is_processing = false
 	processing_completed.emit()
 
 ## Returns the processing time for refactoring based on current complexity.
@@ -118,8 +118,8 @@ func get_current_complexity() -> PlayerComplexity:
 	return current_complexity
 
 func restore_progress_to_80_percent() -> void:
-	if is_processing:
-		is_processing = false
+	if _is_processing:
+		_is_processing = false
 		processing_interrupted.emit()
 	
 	var required = float(get_required_fragments())

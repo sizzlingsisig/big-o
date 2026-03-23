@@ -7,6 +7,10 @@ class_name HeisenbergEnemy
 @export var strike_damage: float = 15.0
 @export var move_speed: float = 50.0
 
+@export var min_teleport_distance: float = 180.0
+@export var strike_delay: float = 0.12
+var _strike_timer: float = 0.0
+
 var _teleport_cooldown_timer: float = 0.0
 var _is_teleporting: bool = false
 var _teleport_count: int = 0
@@ -32,22 +36,29 @@ func _process_stalking(delta: float) -> void:
 
 func _process_behavior(delta: float) -> void:
 	_teleport_cooldown_timer = maxf(0.0, _teleport_cooldown_timer - delta)
-	
-	if _teleport_cooldown_timer <= 0 and _teleport_count < _max_teleports:
+	if _strike_timer > 0:
+		_strike_timer -= delta
+		if _strike_timer <= 0:
+			_attempt_strike()
+	elif _teleport_cooldown_timer <= 0 and _teleport_count < _max_teleports:
 		_trigger_teleport()
 
 func _trigger_teleport() -> void:
 	if not _target:
 		return
-	
 	_is_teleporting = true
 	_teleport_count += 1
 	_teleport_cooldown_timer = teleport_cooldown
-	
-	var behind_offset = (_target.global_position - global_position).normalized() * -100.0
-	var random_offset = Vector2(randf_range(-80, 80), randf_range(-80, 80))
-	var teleport_pos = _target.global_position + behind_offset + random_offset
-	
+	var attempts = 0
+	var teleport_pos = global_position
+	while attempts < 8:
+		var behind_offset = (_target.global_position - global_position).normalized() * -100.0
+		var random_offset = Vector2(randf_range(-80, 80), randf_range(-80, 80))
+		teleport_pos = _target.global_position + behind_offset + random_offset
+		if teleport_pos.distance_to(_target.global_position) >= min_teleport_distance:
+			break
+		attempts += 1
+	teleport_pos = _target.global_position + (_target.global_position - global_position).normalized() * -min_teleport_distance
 	var tween = create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, 0.2)
 	tween.tween_callback(func():
@@ -56,8 +67,9 @@ func _trigger_teleport() -> void:
 	tween.tween_property(self, "modulate:a", 1.0, 0.2)
 	tween.tween_callback(func():
 		_is_teleporting = false
-		_attempt_strike()
+		_strike_timer = strike_delay
 	)
+
 
 func _attempt_strike() -> void:
 	if not _target:

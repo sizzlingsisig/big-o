@@ -51,6 +51,8 @@ func toggle_pause() -> void:
 		pause_menu.hide_pause_menu()
 		_is_paused = false
 	else:
+		if player:
+			pause_menu.position = player.global_position
 		pause_menu.show_pause_menu()
 		_is_paused = true
 

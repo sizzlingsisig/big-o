@@ -50,6 +50,12 @@ signal time_frozen_started(duration: float)
 @warning_ignore("unused_signal")
 signal time_frozen_ended
 
+# --- Game State Signals ---
+@warning_ignore("unused_signal")
+signal game_state_requested(state: String)
+@warning_ignore("unused_signal")
+signal game_state_changed(state: String)
+
 var _freeze_timer: Timer
 
 func _ready() -> void:

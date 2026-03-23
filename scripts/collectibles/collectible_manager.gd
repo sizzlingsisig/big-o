@@ -173,8 +173,8 @@ func return_to_pool(collectible: Node2D) -> void:
 	collectible.set_process(false)
 	collectible.set_physics_process(false)
 	collectible.visible = false
-	collectible.set_deferred("monitoring", false)
-	collectible.set_deferred("monitorable", false)
+	collectible.monitoring = false
+	collectible.monitorable = false
 	
 	if not _available_collectibles.has(collectible):
 		_available_collectibles.append(collectible)
