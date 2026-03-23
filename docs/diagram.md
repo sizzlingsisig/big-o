@@ -8,90 +8,110 @@ This diagram shows the relationships between the Player, its components, the Glo
 
 ```mermaid
 graph TD
-    subgraph Singletons [Global Systems]
-        GE[GameEvents]
-        SFX[ScreenFX]
-        CM[CollectiblePoolManager]
-    end
+    %% Styling
+    classDef singleton fill:#ffcc99,stroke:#333,stroke-width:2px;
+    classDef playerComp fill:#ccffcc,stroke:#333,stroke-width:2px;
+    classDef resource fill:#ffffcc,stroke:#333,stroke-width:2px;
+    classDef ui fill:#e6ccff,stroke:#333,stroke-width:2px;
+    classDef manager fill:#cce6ff,stroke:#333,stroke-width:2px;
 
-    subgraph PlayerEntity [Player: CharacterBody2D]
+    subgraph World_Systems [World & Game Logic]
+        CM[CollectiblePoolManager]
+        ES[EnemySpawner]
+    end
+    class CM,ES manager;
+
+    subgraph Global_Bus [Communication Hub]
+        GE[GameEvents Singleton]
+    end
+    class GE singleton;
+
+    subgraph Player_Entity [Player Container]
         P[player.gd]
         MC[MovementComponent]
         VC[VisualsComponent]
         SRC[SystemResourcesComponent]
         CXM[ComplexityManager]
     end
+    class P,MC,VC,SRC,CXM playerComp;
 
-    subgraph Config [Data Resources]
-        PCR[PlayerComplexity Resource]
+    subgraph Config_Data [Resources]
+        PCR[PlayerComplexity .tres]
     end
+    class PCR resource;
 
     subgraph UI_Layer [User Interface]
-        HUD[HUD.tscn]
-        GOS[GameOver.tscn]
+        HUD[HUD / Overlay]
+        GOS[GameOver / BSOD]
     end
+    class HUD,GOS ui;
 
-    %% Player Component Connections
-    P --> MC
-    P --> VC
-    P --> SRC
-    P --> CXM
-
-    %% Complexity & Data
-    CXM -.-> PCR
-    CXM -- "complexity_changed" --> VC
-    MC -- "uses" --> PCR
-
-    %% Event Bus Communication
-    SRC -- "ram_changed" --> GE
-    CXM -- "tier_changed" --> GE
-    P -- "state_changed" --> GE
+    %% Logic Connections (Direct Calls)
+    P -->|Manages| MC
+    P -->|Manages| VC
+    P -->|Manages| SRC
+    P -->|Manages| CXM
     
-    GE -- "observes" --> HUD
-    GE -- "observes" --> GOS
+    CXM -->|Applies| PCR
+    MC -->|Reads| PCR
+
+    %% Event Bus Flow (Signals)
+    SRC -.->|ram_changed| GE
+    CXM -.->|tier_changed| GE
+    CXM -.->|optimization_progress| GE
+    P -.->|state_changed| GE
+    
+    GE -.->|Signal| HUD
+    GE -.->|Signal| GOS
 
     %% World Interactions
-    CM -- "spawns" --> COL[Collectibles]
-    ES[EnemySpawner] -- "spawns" --> EN[Enemies]
+    CM -->|Spawns| COL[Collectibles]
+    ES -->|Spawns| EN[Enemies]
     
-    COL -- "on_collect" --> CXM
-    EN -- "on_hit" --> P
+    COL -->|on_collect| CXM
+    EN -->|on_hit| P
+
+    %% Legend
+    subgraph Legend
+        L1[Solid Line = Direct Call]
+        L2[Dashed Line = Signal/Event]
+    end
 ```
 
 ---
 
-## 2. Optimization Sequence Diagram
+## 2. Refactor & Optimization Flow
 
-This diagram illustrates the flow from collecting a "Clean Code Packet" to a successful "Refactor" (Tier Upgrade).
+This sequence diagram detail the steps from collecting a packet to successfully upgrading the Big O complexity tier.
 
 ```mermaid
 sequenceDiagram
+    autonumber
     participant C as Collectible
     participant CXM as ComplexityManager
+    participant GE as GameEvents (Bus)
     participant P as Player (player.gd)
-    participant VC as VisualsComponent
     participant HUD as HUD (UI)
 
     C->>CXM: add_optimization_fragment(amount)
-    CXM->>CXM: Update current_fragments
-    CXM-->>HUD: [GameEvents] optimization_fragments_updated
+    CXM->>CXM: Increment current_fragments
+    CXM-->>GE: optimization_fragments_updated(curr, req)
+    GE-->>HUD: Update optimization meter
     
-    Note over CXM: If Meter Full
+    Note over CXM: If fragments >= required
     
-    CXM->>P: [Signal] optimization_ready
-    P->>P: start_processing()
+    CXM->>P: Signal: optimization_ready
     P->>P: _change_state(PROCESSING)
-    P->>VC: set_state(PROCESSING)
-    VC->>VC: apply_processing_effect()
+    P-->>GE: player_state_changed(PROCESSING)
     
-    Note over P: Wait for Processing Timer
+    Note over P: Wait for complexity.get_processing_time()
     
     P->>CXM: complete_refactor()
-    CXM->>CXM: current_index += 1
-    CXM->>CXM: set_tier(new_index)
-    CXM-->>P: [Signal] complexity_changed
-    CXM-->>VC: [Signal] complexity_changed
-    CXM-->>HUD: [GameEvents] complexity_tier_changed
+    CXM->>CXM: index += 1
+    CXM->>CXM: set_tier(index)
+    
+    CXM-->>GE: complexity_tier_changed(new_tier)
+    GE-->>HUD: Update Tier Label & Physics UI
     
     P->>P: _change_state(IDLE)
 ```
@@ -102,22 +122,31 @@ sequenceDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> IDLE
+    state "IDLE (Normal Play)" as idle
+    state "PROCESSING (Refactoring)" as proc
+    state "ERROR (Stunned)" as err
+    state "FORKING (Zombie Fork)" as fork
+    state "DISRUPTED (Control Glitch)" as glitch
+    state "DEAD (BSOD)" as dead
+
+    [*] --> idle
     
-    IDLE --> PROCESSING: optimization_ready
-    PROCESSING --> IDLE: timer_complete
-    PROCESSING --> IDLE: interrupted (damage)
+    idle --> proc: fragments full
+    proc --> idle: timer finished
+    proc --> idle: interrupted (took damage)
     
-    IDLE --> FORKING: space_pressed
-    FORKING --> IDLE: timer_complete
+    idle --> fork: Space pressed
+    note right of fork: Invulnerable state
+    fork --> idle: duration finished
     
-    IDLE --> ERROR: take_damage
-    ERROR --> IDLE: timer_complete
+    idle --> err: hit by enemy
+    err --> idle: duration finished
     
-    IDLE --> DISRUPTED: external_effect
-    DISRUPTED --> IDLE: timer_complete
+    idle --> glitch: heisenberg/spaghetti effect
+    glitch --> idle: duration finished
     
-    IDLE --> DEAD: ram_overflow
-    ERROR --> DEAD: ram_overflow
-    DEAD --> [*]
+    idle --> dead: RAM reaches 100%
+    err --> dead: RAM reaches 100%
+    proc --> dead: RAM reaches 100%
+    dead --> [*]
 ```

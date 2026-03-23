@@ -1,76 +1,114 @@
 # Technical Architecture: Big O: Technical Debt
 
-This document outlines the software architecture, design patterns, and system interactions for the Godot 4 project "Big O: Technical Debt."
+This document provides a detailed overview of the software architecture, design patterns, and system interactions for the Godot 4 project "Big O: Technical Debt."
 
 ---
 
 ## 1. Core Architectural Principles
 
 ### 1.1 Composition over Inheritance (ECS Hybrid)
-The project follows a component-based design for major entities (Player, Enemies). Instead of deep inheritance hierarchies, functionality is encapsulated in specialized `Node` or `Node2D` components.
+The project utilizes a component-based design for entities. This modular approach allows for flexible behavior assignment without the rigidity of deep inheritance.
+- **Entities** (`Player`, `BaseEnemy`) act as containers.
+- **Components** (`MovementComponent`, `VisualsComponent`, `EnemyHealthComponent`) handle specific logic domains.
 
 ### 1.2 Event-Driven Communication
-To minimize tight coupling, the system relies on a global **Event Bus** (`GameEvents`) and local **Signals**. This allows UI and managers to respond to game state changes without direct references to the source entities.
+To minimize tight coupling between disparate systems (e.g., Gameplay logic and UI), the project relies on a global **Event Bus** pattern:
+- **`GameEvents` (Singleton):** Central hub for high-level game state signals (`ram_changed`, `player_died`, `complexity_tier_changed`).
+- **Local Signals:** Used for internal component-to-parent communication (e.g., `health_depleted` in `EnemyHealthComponent` notifies `BaseEnemy`).
 
 ### 1.3 Resource-Based Configuration
-Game balancing (Complexity Tiers, Enemy Stats) is handled via `Resource` files (`.tres`), allowing for rapid iteration without code changes.
+Game balancing and data definitions are abstracted into `Resource` files (`.tres`):
+- **`PlayerComplexity`:** Defines physics and visual properties for each Big O tier.
+- **`EnemyConfig`:** Stores base stats (speed, damage, health) for different enemy types.
+- **`CollectibleData`:** Configures weights and effects for packets.
 
 ---
 
-## 2. Key Systems
+## 2. Key Systems & Deep Dives
 
-### 2.1 Player System
-The player is a `CharacterBody2D` that acts as a container for logic components:
-- **Player Script (`player.gd`):** Manages high-level states (Idle, Processing, Disrupted, etc.) and orchestrates component interactions.
-- **MovementComponent:** Implements mouse-drift physics with simulated input lag and inertia. Uses `PackedArray` for history tracking to maintain high performance.
-- **VisualsComponent:** Handles sprite animations, smooth transitions between complexity tiers, and state-based visual effects (e.g., disruption glitching).
-- **SystemResourcesComponent:** Manages the "RAM" (Health) resource, emitting signals for critical thresholds and overflows.
+### 2.1 The Player System (`player.gd`)
+The `Player` (a `CharacterBody2D`) is the central entity, coordinating several modular components:
 
-### 2.2 Complexity & Optimization
-- **ComplexityManager:** A singleton-like manager (attached to the Player) that tracks the current Big O tier and optimization progress.
-- **PlayerComplexity Resource:** Data containers defining speed, inertia, input lag, and visual scale for each tier.
-- **Refactor Loop:** Collecting "Clean Code Packets" fills a meter; when full, the `ComplexityManager` triggers a "Processing" state in the Player before upgrading the tier.
+#### **MovementComponent (`movement_component.gd`)**
+- **Physics:** Implements "Agar.io-style" mouse drift.
+- **Lag Simulation:** Uses a history buffer (`_input_history_pos` and `_input_history_time`) to delay movement based on the current tier's `input_lag`.
+- **Optimization:** Utilizes `PackedFloat64Array` and `PackedVector2Array` to minimize garbage collection during the history cleanup loop.
+- **External Forces:** Provides `apply_external_force()` for environmental effects like gravity wells or tethers.
 
-### 2.3 Enemy & Technical Debt System
-- **BaseEnemy (`base_enemy.gd`):** A lightweight `Area2D` base class for all enemies.
-- **EnemySpawner:** Manages radial randomized spawning around the player. It implements a wave-based progression system that scales in complexity and density.
-- **Movement Logic:** Enemies use direct position updates rather than `move_and_slide()` to minimize physics overhead.
+#### **VisualsComponent (`visuals_component.gd`)**
+- **Interpolation:** Uses `Tween` to smoothly transition scale, color, and animation states between tiers.
+- **Feedback:** Manages visual-only effects like "Processing" flickers, "Disruption" glitches, and "Ghost" trails for the Zombie Fork.
+- **Collision Management:** Dynamically updates the `CollisionShape2D` size and offset to match the player's visual complexity.
 
-### 2.4 Collectible & Pooling System
-- **CollectiblePoolManager:** Implements an **Object Pool** to manage hundreds of collectibles without garbage collection stutters.
-- **Chunk-Based Spawning:** The world is divided into sectors. The manager spawns and unloads collectibles based on the player's current sector and distance.
+#### **SystemResourcesComponent (`system_resources_component.gd`)**
+- **Resource Management:** Tracks "RAM" usage as a percentage (0-100%).
+- **Thresholds:** Emits signals via `GameEvents` when RAM reaches "Critical" (70%) or "Overflow" (100%) states.
 
 ---
 
-## 3. Data Flow & Communication
+### 2.2 Complexity & Optimization Manager (`complexity_manager.gd`)
+Attached to the Player, this manager handles the core "Reverse Growth" progression:
+- **Refactor Loop:** `add_optimization_fragment()` increments the meter. When full, it emits `optimization_ready`, triggering the Player's **Processing** state.
+- **Tier Transition:** Upon `complete_refactor()`, it updates the player's complexity tier (e.g., $O(2^n) \rightarrow O(n^2)$), fundamentally altering physics via the `PlayerComplexity` resource.
+- **Technical Debt:** `accumulate_debt()` forces a tier downgrade, acting as a penalty for the "Zombie Fork" or taking damage.
+
+---
+
+### 2.3 Enemy & Difficulty System
+
+#### **BaseEnemy (`base_enemy.gd`)**
+- **Lightweight Architecture:** Extends `Area2D` to avoid the overhead of `CharacterBody2D` physics solvers.
+- **Culling:** Automatically deletes itself using `_check_cull_distance()` if it drifts too far from the player (e.g., 2500px).
+- **Simplified AI:** Implements `_process_simplified_behavior()` to reduce CPU load when off-screen.
+
+#### **EnemySpawner (`enemy_spawner.gd`)**
+- **Radial Spawning:** Calculates random spawn positions in a ring around the player (`spawn_distance_min` to `spawn_distance_max`).
+- **Wave Progression:** Implements a three-tier difficulty system:
+    - **Tier 1:** Introductory enemies (`NullPointer`, `MemoryLeak`).
+    - **Tier 2:** Intermediate threats (`StackOverflow`, `SpaghettiCode`).
+    - **Tier 3:** Maximum complexity (`InfiniteLoop`, `Heisenberg`).
+- **Intelligent Mixing:** Tracks `_last_spawned_types` to prevent excessive clustering of the same enemy type.
+
+---
+
+### 2.4 Collectible Pooling & World Management (`collectible_manager.gd`)
+- **Object Pooling:** Maintains a pre-allocated pool of `base_collectible.tscn` instances to prevent frame stutters from instantiation during gameplay.
+- **Sector-Based Spawning:**
+    - Divides the infinite map into "Sectors" (chunks).
+    - As the player moves, sectors are generated using coordinates as seeds for deterministic spawning.
+    - Distant sectors are unloaded, and their collectibles are returned to the pool.
+
+---
+
+## 3. Communication & Data Flow
 
 ### 3.1 Global Event Bus (`GameEvents.gd`)
-A central singleton that facilitates decoupled communication. Key events include:
-- `ram_changed(current, max)`
-- `complexity_tier_changed(new_tier)`
-- `player_state_changed(new_state, old_state)`
-- `sector_changed(coords)`
+The primary decoupled communication channel.
+- **Source:** Entities (Player, Enemies) and Managers (Spawner, CollectiblePool).
+- **Target:** UI (HUD, Game Over), Screen FX, and World Logic.
 
-### 3.2 UI Integration
-The `HUD` and `GameOver` screens connect to `GameEvents` in their `_ready()` functions. They update their display values only when events are received, avoiding expensive per-frame polling.
+### 3.2 Interaction Flow: Taking Damage
+1. **Collision:** `BaseEnemy._on_body_entered()` detects `Player`.
+2. **Signal:** Enemy calls `Player.take_damage()` and `Player.add_ram()`.
+3. **Logic:** 
+    - `SystemResourcesComponent` updates RAM and emits `GameEvents.ram_changed`.
+    - `ComplexityManager` calls `accumulate_debt()`, downgrading the tier.
+4. **Visuals:** `VisualsComponent` plays an error effect; `HUD` updates RAM bar and complexity label via `GameEvents`.
 
 ---
 
 ## 4. Performance Optimizations
 
-- **Input History Buffering:** `MovementComponent` uses `Time.get_ticks_msec()` and `PackedVector2Array` to calculate lag-delayed positions with minimal memory allocation.
-- **Lightweight Physics:** Enemies use `Area2D` instead of `CharacterBody2D`, avoiding collision solver overhead for non-essential entities.
-- **Shaders vs. Sprites:** Heavy visual effects (Deep-Fry, BSOD Glitch) are implemented as screen-space shaders to offload work to the GPU.
+- **Zero-Allocation Physics:** `MovementComponent` uses pre-allocated `PackedArrays` for input history.
+- **No move_and_slide():** Enemies use direct `position` updates to bypass the heavy Godot physics solver.
+- **Signal-Only UI:** UI elements do not use `_process()`. They only redraw when receiving signals from `GameEvents`.
+- **Determinisitc Chunks:** Sector generation uses coordinate-based seeding to ensure the "infinite" world feels consistent without storing map data.
 
 ---
 
-## 5. Directory Structure
-- `assets/`: Raw assets (sprites, sounds, fonts).
-- `resources/`: ScriptableObject-style data files (Tiers, Enemy Configs).
-- `scenes/`: Prefab-style scene files.
-- `scripts/`:
-    - `components/`: Modular logic for entities.
-    - `managers/`: Global systems (Complexity, Spawning, Pooling).
-    - `player/`: Player-specific scripts and states.
-    - `globals/`: Singletons and constants.
-- `shaders/`: GLSL shader code.
+## 5. Directory Architecture
+- `scripts/components/`: Modular entity logic.
+- `scripts/managers/`: Global orchestration systems.
+- `scripts/player/player_states/`: (Optional) Node-based state implementations.
+- `resources/`: Data-driven configurations.
+- `shaders/`: Screen-space and object-based visual effects.
