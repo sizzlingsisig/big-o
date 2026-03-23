@@ -27,6 +27,9 @@ signal thread_forked(thread: SubThread)
 @export var error_duration: float = 0.5
 @export var fork_duration: float = 0.3
 
+@export_category("Demo Mode")
+@export var demo_mode: bool = false
+
 var _state: State = State.IDLE
 var _state_timer: float = 0.0
 var _disruption_timer: float = 0.0
@@ -213,11 +216,17 @@ func _input(event: InputEvent) -> void:
 		else:
 			print("System recovering from previous fork...")
 	
-	if OS.is_debug_build():
+	if OS.is_debug_build() or demo_mode:
 		if event.is_action_pressed("ui_up"):
-			start_processing()
+			if demo_mode:
+				complexity.set_tier(complexity.current_index + 1)
+			else:
+				start_processing()
 		if event.is_action_pressed("ui_down"):
-			complexity.accumulate_debt()
+			if demo_mode:
+				complexity.set_tier(complexity.current_index - 1)
+			else:
+				complexity.accumulate_debt()
 
 func start_processing() -> void:
 	if _state == State.DEAD or _state == State.PROCESSING:

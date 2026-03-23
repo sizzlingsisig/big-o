@@ -179,6 +179,7 @@ complexity = NodePath("ComplexityManager")
 visuals = NodePath("VisualsComponent")
 system_resources = NodePath("SystemResourcesComponent")
 sub_thread_scene = ExtResource("13_subthread")
+demo_mode = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=324693883]
 sprite_frames = SubResource("SpriteFrames_lhvu3")
