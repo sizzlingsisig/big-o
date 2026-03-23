@@ -17,3 +17,4 @@ class_name EnemyConfig
 @export var spawn_weight: float = 1.0
 @export var min_wave: int = 1
 @export var max_count: int = 5
+

@@ -25,6 +25,7 @@ var _target: Node2D
 var _is_active: bool = false
 var _is_on_screen: bool = false
 var _has_hit_player: bool = false
+var _is_time_frozen: bool = false
 var velocity: Vector2 = Vector2.ZERO
 
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -34,15 +35,24 @@ func _ready() -> void:
 	_setup_from_config()
 	add_to_group("enemies")
 	
+	GameEvents.time_frozen_started.connect(_on_time_frozen_started)
+	GameEvents.time_frozen_ended.connect(_on_time_frozen_ended)
+
 	if health_component:
 		health_component.health_depleted.connect(_on_health_depleted)
-	
+
 	area_entered.connect(_on_area_entered)
 	body_entered.connect(_on_body_entered)
-	
+
 	if screen_notifier:
 		screen_notifier.screen_entered.connect(_on_screen_entered)
 		screen_notifier.screen_exited.connect(_on_screen_exited)
+
+func _on_time_frozen_started(_duration: float) -> void:
+	_is_time_frozen = true
+	
+func _on_time_frozen_ended() -> void:
+	_is_time_frozen = false
 
 func _setup_from_config() -> void:
 	if config:
@@ -53,11 +63,7 @@ func _setup_from_config() -> void:
 			health_component.max_health = config.max_health
 
 func _physics_process(delta: float) -> void:
-	if not _is_active:
-		return
-	
-	if use_simplified_behavior_off_screen and not _is_on_screen:
-		_process_movement(delta)
+	if not _is_active or _is_time_frozen:
 		_process_simplified_behavior(delta)
 	else:
 		_process_movement(delta)
@@ -124,6 +130,12 @@ func _on_area_entered(_area: Area2D) -> void:
 func _on_body_entered(body: Node) -> void:
 	if body is Player and not _has_hit_player:
 		_has_hit_player = true
+		
+		if body.has_method("consume_shield") and body.consume_shield():
+			print("[ENEMY] %s hit player shield! Absorbed!" % name)
+			die()
+			return
+			
 		print("[ENEMY] %s hit player! RAM +%.0f%%" % [name, ram_damage])
 		
 		# Decoupled interaction via Player methods or GameEvents

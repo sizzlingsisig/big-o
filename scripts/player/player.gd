@@ -35,6 +35,7 @@ var _disruption_duration: float = 2.0
 var _can_split: bool = true
 var _is_invulnerable: bool = false
 var _error_label: Label
+var _shields: int = 0
 
 @onready var split_timer: Timer = $SplitCooldown
 
@@ -285,6 +286,17 @@ func add_ram(amount: float) -> void:
 func clear_ram(amount: float = 20.0) -> void:
 	if system_resources:
 		system_resources.clear_ram(amount)
+
+func add_shields(amount: int) -> void:
+	_shields += amount
+	print("Player picked up shields. Total shields: ", _shields)
+
+func consume_shield() -> bool:
+	if _shields > 0:
+		_shields -= 1
+		print("Player consumed a shield. Remaining shields: ", _shields)
+		return true
+	return false
 
 func apply_external_force(force: Vector2) -> void:
 	if movement:

@@ -43,3 +43,23 @@ signal status_effect_applied(effect_type: String, data: Dictionary)
 # --- World & Environment ---
 @warning_ignore("unused_signal")
 signal sector_changed(coords: Vector2i)
+@warning_ignore("unused_signal")
+signal time_frozen_started(duration: float)
+@warning_ignore("unused_signal")
+signal time_frozen_ended
+
+var _freeze_timer: Timer
+
+func _ready() -> void:
+	_freeze_timer = Timer.new()
+	_freeze_timer.one_shot = true
+	_freeze_timer.timeout.connect(_on_freeze_timeout)
+	add_child(_freeze_timer)
+	
+	time_frozen_started.connect(_on_time_frozen_started)
+
+func _on_time_frozen_started(duration: float) -> void:
+	_freeze_timer.start(duration)
+
+func _on_freeze_timeout() -> void:
+	time_frozen_ended.emit()

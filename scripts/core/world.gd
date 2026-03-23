@@ -22,12 +22,14 @@ func _ready() -> void:
 	GameEvents.status_effect_applied.connect(_on_status_effect_applied)
 	GameEvents.ram_overflow.connect(_on_ram_overflow)
 	GameEvents.player_died.connect(_on_player_died)
-	
+
 	if player:
-			enemy_spawner.set_player(player)
-			enemy_spawner.enemy_spawned.connect(func(e): GameEvents.enemy_spawned.emit(e))
-			enemy_spawner.wave_started.connect(func(w): GameEvents.wave_started.emit(w))
-			enemy_spawner.wave_completed.connect(func(w): GameEvents.wave_completed.emit(w))
+		enemy_spawner.set_player(player)
+		if is_instance_valid(CollectiblePool):
+			CollectiblePool.set_player(player)
+		enemy_spawner.enemy_spawned.connect(func(e): GameEvents.enemy_spawned.emit(e))
+		enemy_spawner.wave_started.connect(func(w): GameEvents.wave_started.emit(w))
+		enemy_spawner.wave_completed.connect(func(w): GameEvents.wave_completed.emit(w))
 	else:
 		push_error("World: Player node not found!")
 	
