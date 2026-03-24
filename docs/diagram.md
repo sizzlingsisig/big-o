@@ -8,9 +8,9 @@ This diagram shows the relationships between the Player, its components, the Glo
 
 ```mermaid
 graph TD
-    %% Simplified Styling
-    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
-    classDef aux fill:#f5f5f5,stroke:#000000,stroke-width:2px;
+    %% High Contrast Styling
+    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000;
+    classDef aux fill:#ffffff,stroke:#64748b,stroke-width:2px,color:#000;
 
     subgraph World_Systems [World & Game Logic]
         CM[CollectiblePoolManager]
@@ -71,7 +71,7 @@ graph TD
     %% Legend
     subgraph Legend
         L1[Blue = Core Logic]
-        L2[Gray = Supporting/UI]
+        L2[White = Supporting/UI]
         L3[Solid Line = Direct Call]
         L4[Dashed Line = Signal/Event]
     end
