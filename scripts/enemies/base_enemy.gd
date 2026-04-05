@@ -133,6 +133,7 @@ func _on_body_entered(body: Node) -> void:
 		
 		if body.has_method("consume_shield") and body.consume_shield():
 			print("[ENEMY] %s hit player shield! Absorbed!" % name)
+			ScreenFX.shake(3.0, 0.2)
 			die()
 			return
 			

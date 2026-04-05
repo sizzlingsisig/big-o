@@ -50,6 +50,10 @@ func _ready() -> void:
 		push_error("Player: Missing component assignments in the Inspector!")
 		return
 	
+	var cam = get_node_or_null("Camera2D")
+	if cam:
+		ScreenFX.register_camera(cam)
+	
 	_setup_error_label()
 	
 	complexity.complexity_changed.connect(_on_complexity_changed)
@@ -338,6 +342,7 @@ func take_damage(amount: float) -> void:
 		for i in range(int(amount)):
 			complexity.accumulate_debt()
 	
+	ScreenFX.shake(4.0, 0.25)
 	_change_state(State.ERROR)
 	_state_timer = error_duration
 

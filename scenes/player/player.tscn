@@ -211,5 +211,6 @@ one_shot = true
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=300121748]
 position_smoothing_enabled = true
+groups = ["player_camera"]
 
 [connection signal="timeout" from="SplitCooldown" to="." method="_on_split_cooldown_timeout"]
