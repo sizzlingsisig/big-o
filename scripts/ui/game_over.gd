@@ -61,7 +61,7 @@ func show_game_over(ram_percentage: float, time_survived: float, reason: String 
 		var seconds = int(_final_time_survived) % 60
 		time_survived_label.text = "TIME SURVIVED: %d:%02d" % [minutes, seconds]
 	if restart_hint:
-		restart_hint.text = "PRESS SPACE TO RETURN TO MENU · PRESS ESC TO QUIT"
+		restart_hint.text = "PRESS SPACE TO RESTART · PRESS ESC TO MENU"
 	
 	visible = true
 	
@@ -126,20 +126,23 @@ func _input(event: InputEvent) -> void:
 		return
 	
 	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_select"):
-		_return_to_menu()
+		event.accept()
+		_restart_to_play()
 	elif event.is_action_pressed("ui_cancel"):
-		_quit_game()
+		event.accept()
+		_return_to_menu()
+
+func _restart_to_play() -> void:
+	_stop_glitch_effect()
+	visible = false
+	if get_tree():
+		get_tree().paused = false
+	GameEvents.restart_requested.emit()
+	GameEvents.game_state_requested.emit(BigOConstants.STATE_PLAY)
 
 func _return_to_menu() -> void:
 	_stop_glitch_effect()
 	visible = false
 	if get_tree():
 		get_tree().paused = false
-	restart_requested.emit()
-	GameEvents.game_state_requested.emit("menu")
-
-func _quit_game() -> void:
-	_stop_glitch_effect()
-	if get_tree():
-		get_tree().paused = false
-	get_tree().quit()
+	GameEvents.game_state_requested.emit(BigOConstants.STATE_MENU)

@@ -16,7 +16,7 @@ func _on_resume_pressed() -> void:
 
 func _on_menu_pressed() -> void:
 	get_tree().paused = false  # Unpause before changing scenes
-	GameEvents.game_state_requested.emit("menu")
+	GameEvents.game_state_requested.emit(BigOConstants.STATE_MENU)
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

@@ -2,6 +2,19 @@ class_name BigOConstants
 
 ## Centralized system constants and definitions for "Big O: Technical Debt".
 
+# --- Game State Identifiers ---
+## Used for game_state_changed and game_state_requested signals
+## Access via: BigOConstants.STATE_MENU, BigOConstants.STATE_PLAY, BigOConstants.STATE_GAME_OVER
+const STATE_MENU: String = "menu"
+const STATE_PLAY: String = "play"
+const STATE_GAME_OVER: String = "game_over"
+
+## State transition map:
+## menu -> play (via start_requested)
+## play -> game_over (via player_death or ram_overflow)
+## game_over -> menu (via menu_return)
+## game_over -> play (via restart_requested)
+
 # --- World & Grid ---
 const SECTOR_SIZE: float = 2000.0
 
