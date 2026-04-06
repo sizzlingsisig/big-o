@@ -39,7 +39,12 @@ func _process_tether_physics(delta: float) -> void:
 		var pull_strength = (distance - tether_length) * tether_pull_force * delta
 		velocity += pull_direction * pull_strength
 	
-	velocity = velocity.lerp(velocity.normalized() * tangle_speed, delta * 2.0)
+	if to_target != Vector2.ZERO:
+		var target_velocity = to_target.normalized() * tangle_speed
+		velocity = velocity.lerp(target_velocity, delta * 2.0)
+	
+	if sprite and (not sprite.is_playing() or sprite.animation != "tangle"):
+		sprite.play("tangle")
 
 func _process_behavior(_delta: float) -> void:
 	if not _target or _tether_count >= max_tether_count:
