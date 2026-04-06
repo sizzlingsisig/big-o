@@ -34,28 +34,31 @@ The 6 tiers heavily modify movement physics, collision, and input responsiveness
 | $O(1)$ (Constant) | 220 px/s | 22px | 0.0 | 0.0s |
 
 ### RAM Gauge (Health)
-A survival health bar. RAM **only increases** when enemies hit you. The only way to reduce RAM is to use the **Zombie Fork** ability (Spacebar), which clears 50% of current RAM.
+A survival health bar tracking system instability. 
+* **Increase:** RAM increases when enemies hit you or when you consume "Corrupted GC" packets (+20% RAM).
+* **Decrease:** Using the **Zombie Fork** ability (Spacebar) clears 20% RAM immediately. Some collectibles also drain RAM over time.
 
-**Critical Threshold:** 70% - triggers warning state  
-**Game Over:** 100% - triggers BSOD crash screen
+**Critical Threshold:** 70% - triggers warning state and visual glitches  
+**Game Over:** 100% - triggers BSOD (Blue Screen of Death) crash screen
 
 ### Technical Debt (Enemies)
-All enemies are lightweight `Area2D` entities with no physics overhead. They all destroy themselves on player contact.
+Enemies deal **RAM Damage** (instability) and **Contact Damage** (immediate Tier Downgrade). They are destroyed on player contact.
 
-| Enemy | RAM Damage | Behavior |
+| Enemy | RAM / Tier Damage | Behavior |
 |-------|-----------|---------|
-| **Null Pointer** | 10% | Fast-moving. Locks direction toward player on spawn, then moves in a straight line. |
-| **Memory Leak** | 12% burst | Drifting blob that grows over time. Deals continuous RAM drain (1.5%/sec) while overlapping. |
-| **Infinite Loop** | 15% | Orbits the arena. Creates a gravitational pull that drags the player toward it. |
-| **Heisenberg** | 18% | Stalks the player slowly. Periodically disrupts player controls for 2 seconds. |
-| **Spaghetti Code** | 15% | Slow-moving. Shoots tether cables that drag the player. |
-| **Stack Overflow** | 20% | Approaches, crushes (brief pause), then retreats. Gets larger with each crush. |
+| **Null Pointer** | 10% / 1 Tier | Fast-moving (280 px/s). Locks direction on spawn, then moves in a straight line. |
+| **Memory Leak** | 12% / 1 Tier | Drifting blob that grows over time. Deals continuous RAM drain while overlapping. |
+| **Infinite Loop** | 15% / 1 Tier | Orbits the player. Creates a gravitational pull and Time Dilation (slow) effect. |
+| **Heisenberg** | 18% / 1 Tier | Stalks player slowly. Periodically teleports behind the player to strike. |
+| **Spaghetti Code** | 15% / 1 Tier | Slow-moving. Shoots tether cables that drag the player. |
+| **Stack Overflow** | 20% / 1 Tier | Approaches, crushes (brief pause), then retreats. |
 
 ### Player Feedback
 When hit by an enemy:
 1. Player sprite flashes **red**
 2. "ERROR" label appears above player
-3. Debug console logs: `[ENEMY] X hit player! RAM +Y%`
+3. Player is downgraded to a slower Big O tier (accumulated debt)
+4. Debug console logs: `[ENEMY] X hit player! RAM +Y%`
 
 **Note:** Damage does NOT cause automatic complexity regression — it only increases RAM. Players must use the Zombie Fork (Spacebar) to manually increase complexity.
 
@@ -68,36 +71,36 @@ When hit by an enemy:
 * **Cooldown:** 2 seconds
 
 ### Clean Code Packets (Collectibles)
-The win condition is pure grind and survival. Collecting data fills a Complexity Meter on the HUD. When full, the player automatically drops one tier. The meter resets after each tier drop.
+The win condition is pure optimization. Collecting data fills a Complexity Meter on the HUD. When full, the player enters a brief **"Processing" (Compile)** state before dropping a tier.
 
 **Complexity Meter Scaling:**
-| Current Tier | Commits Required |
-|--------------|------------------|
-| $O(2^n) \rightarrow O(n^2)$ | 10 |
-| $O(n^2) \rightarrow O(n \log n)$ | 15 |
-| $O(n \log n) \rightarrow O(n)$ | 20 |
-| $O(n) \rightarrow O(\log n)$ | 25 |
-| $O(\log n) \rightarrow O(1)$ | 30 |
+| Current Tier | Fragments Required | Approx. Commits |
+|--------------|--------------------|-----------------|
+| $O(2^n) \rightarrow O(n^2)$ | 10 | 1 |
+| $O(n^2) \rightarrow O(n \log n)$ | 15 | 1.5 |
+| $O(n \log n) \rightarrow O(n)$ | 20 | 2 |
+| $O(n) \rightarrow O(\log n)$ | 25 | 2.5 |
+| $O(\log n) \rightarrow O(1)$ | 30 | 3 |
 
-*Why it scales:* Early tiers are miserable to play, so relief comes faster. The final stretch toward $O(1)$ is intentionally the hardest gate — those last 6 commits while fast and tiny should feel like a sprint against the clock.
+*Note: A **Refactor Commit** packet provides 10 fragments, while a standard **Data Packet** provides 2 fragments.*
 
 ### Collectible Items
 
 | # | Name | Rarity | Sprite | Effect | Color |
 |---|------|--------|--------|--------|-------|
-| 1 | **Refactor Commit** | Common | 💾 Floppy disk | Fills Complexity Meter by 1 full commit (scaled per tier). | #00FF88 (mint green) |
-| 2 | **Data Packet** | Abundant | 🟦 Tiny square | Fills Complexity Meter by a small fraction of a commit. | #00FFFF (cyan) |
+| 1 | **Refactor Commit** | Common | 💾 Floppy disk | Fills Complexity Meter by 10 fragments. | #00FF88 (mint green) |
+| 2 | **Data Packet** | Abundant | 🟦 Tiny square | Fills Complexity Meter by 2 fragments. | #00FFFF (cyan) |
 | 3 | **Garbage Collector** | Common | 🗑️ Trash can | –15% RAM over 4s. | #AA00FF (purple) |
-| 4 | **L1 Cache Hit** | Common | ⚡ Lightning bolt | Max speed + 0 inertia for 5s. | #0088FF (electric blue) |
+| 4 | **L1 Cache Hit** | Common | ⚡ Lightning bolt | Max speed + 0 inertia + 0 lag for 5s. | #0088FF (electric blue) |
 | 5 | **Hotfix Patch** | Rare | 🩹 Bandage roll | RAM frozen for 8s. | #FFAA00 (orange) |
-| 6 | **Corrupted GC** | Uncommon | 🗑️ Glitched trash | Mimics GC, flickers at 60–150px, drifts away on reveal, +20% RAM on pickup. | #FF0066 (hot pink) |
+| 6 | **Corrupted GC** | Uncommon | 🗑️ Glitched trash | Mimics GC, flickers, drifts away, +20% RAM on pickup. | #FF0066 (hot pink) |
 | 7 | **Code Freeze** | Rare | ❄️ Ice cube | Freezes all enemies in place for 4s. | #FFFFFF (white/ice) |
 
 ### Infinite World & Off-Screen Tracking
 The game features an infinite scrolling continuous world. 
-* **Dynamic Spawning:** Enemies and collectibles spawn relative to the player's position rather than a static map center.
-* **Distance Culling:** Enemies leaving the screen enter a simplified AI state to save CPU, and are only deleted if they fall too far behind the player (`CULL_DISTANCE`).
-* **Sector-Based Backgrounds:** The background dynamically shifts visual patterns based on the player's Euclidean distance from the origin.
+* **Sector-Based Spawning:** The world is divided into chunks (Sectors). Collectibles spawn relative to the player's current sector coordinates using deterministic seeds.
+* **Object Pooling:** To prevent GC stutters, collectibles are recycled into a pool of 500 nodes rather than being instantiated/destroyed.
+* **Distance Culling:** Enemies leaving the screen enter a simplified AI state and are deleted if they exceed `CULL_DISTANCE` (2500px).
 
 ### Visual Polish & Shaders
 * **Matrix Background Shader:** A customizable canvas shader that renders a grid of binary digits with subtle jitter, scanlines, and flicker. The shader adapts based on player progress:
@@ -112,7 +115,9 @@ The intended win condition is to reach the $O(1)$ tier, which would trigger a vi
 ### Game Over Screen (BSOD)
 When RAM reaches 100%, a Blue Screen of Death appears:
 - Displays random crash codes (0x0000000D, 0xDEADBEEF, etc.)
-- Shows RAM usage percentage and wave reached
+- Shows RAM usage percentage (100%)
+- Shows Total Time Survived
+- Shows Highest Complexity Tier reached
 - Visual glitch effect with screen shake
 - Press **Space** to restart, **Escape** to quit
 
@@ -120,19 +125,22 @@ When RAM reaches 100%, a Blue Screen of Death appears:
 
 ## Progression & Score
 
-### Lines of Code (LOC)
-Primary score metric representing the amount of data processed and optimized.
-* **Alpha Phase (0‑1000 LOC):** Early stage with basic enemy types (Tier 1). Background uses the first thematic color.
-* **Beta Phase (1000‑2000 LOC):** Intermediate stage with additional enemy types (Tier 2). Background shifts to the second thematic color.
-* **Production Phase (2000+ LOC):** Advanced stage with full enemy variety (Tier 3). Background cycles through remaining thematic colors, and visual intensity increases.
+### Primary Metrics
+* **Time Survived:** Total execution time before system failure.
+* **Difficulty Tiers:** The system becomes more unstable over time, unlocking more aggressive Technical Debt:
+    * **Tier 1 (0-30s):** Stable system. Only Null Pointers and Memory Leaks spawn.
+    * **Tier 2 (30-90s):** Increased pressure. Adds Stack Overflows and Spaghetti Code.
+    * **Tier 3 (90s+):** Maximum entropy. All Technical Debt types active, spawn delay at minimum.
 
 ---
 
 ## Technical Architecture
 
-### Entity Component System (ECS) Hybrid
-* Entities use dedicated components (`MovementComponent`, `VisualsComponent`, `ComplexityManager`) for modular logic.
-* Decoupled communication via Signals (e.g., `thread_forked`, `player_gravity_pull`, `leaking_ram`).
+For a deep dive into the system design, components, and data flow, see [Architecture.md](./architecture.md).
+
+### Core Design
+* **Component-Based Entities:** Entities like the Player and Enemies use modular components (`MovementComponent`, `VisualsComponent`, `SystemResourcesComponent`) to encapsulate logic.
+* **Event-Driven UI:** The `HUD` and `GameOver` screens are decoupled from the game logic, updating via the `GameEvents` singleton.
 
 ### Performance Optimization
 * **Zero-Allocation Physics:** `MovementComponent` uses `PackedFloat64Array` and `PackedVector2Array` to track input history, ensuring zero garbage allocation during the critical physics loop.
@@ -180,10 +188,10 @@ World
 | Escape | Quit (on game over) |
 
 ### UI Elements
-* **RAM Meter:** Vertical progress bar showing current RAM usage
-* **Complexity Display:** Shows current Big O tier
-* **Complexity Meter:** Horizontal bar tracking commits until the next tier drop. Flashes and resets on tier drop with a "compile complete" sound cue.
-* **Difficulty Counter:** Current difficulty tier
+* **RAM Meter:** Vertical progress bar showing current RAM usage (system instability)
+* **Complexity Display:** Shows current Big O tier (e.g., $O(n^2)$)
+* **Complexity Meter:** Horizontal bar tracking fragments until the next tier drop. Flashes and resets on tier drop with a "compile complete" visual cue.
+* **Tier Display:** Current difficulty tier (Time-survived based)
 
 ---
 
@@ -224,23 +232,6 @@ World
 - Final size: 136x912px
 - Background: WHITE (#FFFFFF)
 - Style: Neon glow outlines (2px stroke), cyberpunk terminal aesthetic
-
----
-
-## Difficulty & Enemy Spawning
-The game uses a time‑based difficulty tier system that influences enemy spawn rates and types.
-
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| `initial_spawn_delay` | 3.5 s | Spawn interval at start of play |
-| `min_spawn_delay` | 1.2 s | Minimum spawn interval as difficulty ramps |
-| `spawn_delay_decrease_rate` | 0.005 s per second | How quickly the spawn interval shortens |
-| `tier_1_duration` | 30 s | Duration of Tier 1 (basic enemies) |
-| `tier_2_duration` | 90 s | Duration of Tier 2 (additional enemy types) |
-| `max_active_enemies` | 30 | Upper cap on simultaneous enemies |
-| `spawn_distance_min` | 400 px | Minimum distance from player for spawn |
-| `spawn_distance_max` | 800 px | Maximum distance from player for spawn |
-| `max_consecutive_same_type` | 2 | Prevents more than two identical enemies in a row |
 
 ---
 
