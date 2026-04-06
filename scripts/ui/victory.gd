@@ -23,8 +23,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group("victory_screen")
 	
-	# Unpause so timers can work
-	get_tree().paused = false
+	# Keep game paused during victory sequence
 	
 	# Start boot sequence
 	print("[Victory] _ready called, starting boot sequence")

@@ -136,4 +136,9 @@ func _on_body_exited(body: Node2D) -> void:
 		hover_progress_changed.emit(0.0)
 
 func _on_collected() -> void:
+	# Play collection sound via autoload
+	var sm = get_node_or_null("/root/SoundManager")
+	if sm:
+		sm.play_collect()
+		print("[Sound] Playing collect sound")
 	deactivate()

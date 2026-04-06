@@ -35,6 +35,12 @@ func _load_menu() -> void:
 	_cleanup_all_instances()
 	get_tree().paused = false
 	
+	# Stop game music, start menu music
+	var sm = get_node_or_null("/root/SoundManager")
+	if sm:
+		sm.stop_game_music()
+		sm.play_menu_music()
+	
 	menu_instance = SCENE_MENU.instantiate()
 	add_child(menu_instance)
 	
@@ -45,6 +51,12 @@ func _load_world() -> void:
 	_cleanup_all_instances()
 	get_tree().paused = false
 	
+	# Stop menu music, start game music
+	var sm = get_node_or_null("/root/SoundManager")
+	if sm:
+		sm.stop_menu_music()
+		sm.play_game_music()
+	
 	world_instance = SCENE_WORLD.instantiate()
 	add_child(world_instance)
 	
@@ -52,13 +64,18 @@ func _load_world() -> void:
 	print("Loaded World")
 
 func _load_game_over() -> void:
-	get_tree().paused = false
+	get_tree().paused = true
 	
 	if world_instance and is_instance_valid(world_instance):
 		pass
 	else:
 		world_instance = SCENE_WORLD.instantiate()
 		add_child(world_instance)
+	
+	# Play game over sound
+	var sm = get_node_or_null("/root/SoundManager")
+	if sm:
+		sm.play_game_over()
 	
 	_set_state(BigOConstants.STATE_GAME_OVER)
 	print("Loaded Game Over state")

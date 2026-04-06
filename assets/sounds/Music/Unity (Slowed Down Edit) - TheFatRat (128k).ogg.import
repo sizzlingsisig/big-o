@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://cgsrxe3smhyje"
+path="res://.godot/imported/Unity (Slowed Down Edit) - TheFatRat (128k).ogg-eb14a377b9cce56f46fdd77f82c10c03.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sounds/Music/Unity (Slowed Down Edit) - TheFatRat (128k).ogg"
+dest_files=["res://.godot/imported/Unity (Slowed Down Edit) - TheFatRat (128k).ogg-eb14a377b9cce56f46fdd77f82c10c03.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

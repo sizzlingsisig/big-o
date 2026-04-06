@@ -379,4 +379,10 @@ func trigger_dead() -> void:
 	if _state == State.DEAD:
 		return
 	_change_state(State.DEAD)
+	
+	# Play death sound
+	var sm = get_node_or_null("/root/SoundManager")
+	if sm:
+		sm.play_game_over()
+	
 	GameEvents.player_died.emit()

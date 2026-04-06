@@ -47,6 +47,12 @@ func _on_area_entered(_area: Area2D) -> void:
 func _on_body_entered(body: Node) -> void:
 	if body is Player and not _has_hit_player:
 		_has_hit_player = true
+		
+		# Play hit sound via autoload
+		var sm = get_node_or_null("/root/SoundManager")
+		if sm:
+			sm.play_hit()
+		
 		body.take_damage(contact_damage)
 		body.add_ram(ram_damage)
 		die()

@@ -140,6 +140,11 @@ func _on_body_entered(body: Node) -> void:
 			
 		print("[ENEMY] %s hit player! RAM +%.0f%%" % [name, ram_damage])
 
+		# Play hit sound via autoload
+		var sm = get_node_or_null("/root/SoundManager")
+		if sm:
+			sm.play_hit()
+		
 		player.take_damage(contact_damage)
 		player.add_ram(ram_damage)
 			

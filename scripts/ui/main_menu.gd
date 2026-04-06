@@ -22,10 +22,14 @@ func _ready() -> void:
 	start_button.pressed.connect(_on_start_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 	
-	start_button.mouse_entered.connect(func(): _on_button_hover(start_button, true))
-	quit_button.mouse_entered.connect(func(): _on_button_hover(quit_button, true))
+	start_button.mouse_entered.connect(_on_start_hover)
+	quit_button.mouse_entered.connect(_on_quit_hover)
 	start_button.mouse_exited.connect(func(): _on_button_hover(start_button, false))
 	quit_button.mouse_exited.connect(func(): _on_button_hover(quit_button, false))
+	
+	# Focus sounds for keyboard/controller navigation
+	start_button.focus_entered.connect(_on_focus_changed)
+	quit_button.focus_entered.connect(_on_focus_changed)
 	
 	start_button.grab_focus()
 
@@ -118,10 +122,17 @@ func _spawn_glitch_label(spawn_origin: Vector2, viewport_size: Vector2) -> void:
 	)
 
 func _on_start_pressed() -> void:
+	_play_select_sound()
 	GameEvents.start_requested.emit()
 
 func _on_quit_pressed() -> void:
+	_play_select_sound()
 	GameEvents.quit_requested.emit()
+
+func _play_select_sound() -> void:
+	var sm = get_node_or_null("/root/SoundManager")
+	if sm:
+		sm.play_menu_select()
 
 func _on_button_hover(button: Button, hovering: bool) -> void:
 	var target_scale = Vector2(1.05, 1.05) if hovering else Vector2(1.0, 1.0)
@@ -130,6 +141,22 @@ func _on_button_hover(button: Button, hovering: bool) -> void:
 	
 	var tween = create_tween().set_parallel(true)
 	tween.tween_property(button, "scale", target_scale, 0.1)
+
+func _on_start_hover() -> void:
+	_on_button_hover(start_button, true)
+	_play_menu_sound()
+
+func _on_quit_hover() -> void:
+	_on_button_hover(quit_button, true)
+	_play_menu_sound()
+
+func _play_menu_sound() -> void:
+	var sm = get_node_or_null("/root/SoundManager")
+	if sm:
+		sm.play_menu_hover()
+
+func _on_focus_changed() -> void:
+	_play_menu_sound()
 
 func _on_button_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:

@@ -97,6 +97,11 @@ func complete_refactor() -> void:
 	is_processing = false
 	processing_completed.emit()
 	
+	# Play refactor sound via autoload
+	var sm = get_node_or_null("/root/SoundManager")
+	if sm:
+		sm.play_refactor()
+	
 	# Check if we just reached O(1) - trigger victory!
 	if not was_at_max_before and current_index >= complexity_tiers.size() - 1:
 		print("[ComplexityManager] Reached O(1)! Emitting victory!")

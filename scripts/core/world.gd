@@ -117,6 +117,9 @@ func _on_ram_overflow() -> void:
 	print("[World] RAM overflow - calling trigger_dead")
 	if player:
 		player.trigger_dead()
+	# Also trigger game over flow
+	if not _is_game_over:
+		_trigger_game_over("RAM_OVERFLOW")
 
 func _trigger_game_over(reason: String) -> void:
 	if _is_game_over:
