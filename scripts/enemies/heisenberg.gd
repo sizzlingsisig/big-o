@@ -10,7 +10,7 @@ class_name HeisenbergEnemy
 var _teleport_cooldown_timer: float = 0.0
 var _is_teleporting: bool = false
 var _teleport_count: int = 0
-var _max_teleports: int = 3
+var _max_teleports: int = 1
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 

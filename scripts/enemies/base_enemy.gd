@@ -27,6 +27,7 @@ var _is_on_screen: bool = false
 var _has_hit_player: bool = false
 var _is_time_frozen: bool = false
 var velocity: Vector2 = Vector2.ZERO
+var _spawn_intro_tween: Tween
 
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var screen_notifier: VisibleOnScreenNotifier2D = $VisibleOnScreenNotifier2D
@@ -103,10 +104,24 @@ func deactivate() -> void:
 
 func _on_activated() -> void:
 	visible = true
+	if _spawn_intro_tween:
+		_spawn_intro_tween.kill()
+
+	scale = Vector2.ZERO
+	modulate.a = 0.0
+
+	_spawn_intro_tween = create_tween().set_parallel(true)
+	_spawn_intro_tween.tween_property(self, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	_spawn_intro_tween.tween_property(self, "modulate:a", 1.0, 0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _on_deactivated() -> void:
 	visible = false
 	_is_on_screen = false
+	if _spawn_intro_tween:
+		_spawn_intro_tween.kill()
+		_spawn_intro_tween = null
+	scale = Vector2.ONE
+	modulate.a = 1.0
 
 func take_damage(amount: float) -> void:
 	if health_component:

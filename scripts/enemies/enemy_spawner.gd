@@ -6,8 +6,8 @@ signal difficulty_increased(tier: int, time_elapsed: float)
 
 @export_category("Spawning")
 @export var enemy_scenes: Array[PackedScene] = []
-@export var spawn_distance_min: float = 400.0
-@export var spawn_distance_max: float = 800.0
+@export var spawn_distance_min: float = 600.0
+@export var spawn_distance_max: float = 1000.0
 @export var max_active_enemies: int = 30
 
 @export_category("Difficulty Scaling")

@@ -24,7 +24,7 @@ func _ready() -> void:
 	_add_glitch_timer()
 
 func show_game_over(ram_percentage: float, time_survived: float, reason: String = "HEAP_OVERFLOW") -> void:
-	_final_ram = ram_percentage
+	_final_ram = 100.0
 	_final_time_survived = time_survived
 	_crash_reason = reason
 	
