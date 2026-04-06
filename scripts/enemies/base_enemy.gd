@@ -34,6 +34,8 @@ var velocity: Vector2 = Vector2.ZERO
 func _ready() -> void:
 	_setup_from_config()
 	add_to_group("enemies")
+	collision_layer = BigOConstants.PHYSICS_LAYER_ENEMY
+	collision_mask = BigOConstants.PHYSICS_MASK_ENEMY
 	
 	GameEvents.time_frozen_started.connect(_on_time_frozen_started)
 	GameEvents.time_frozen_ended.connect(_on_time_frozen_ended)

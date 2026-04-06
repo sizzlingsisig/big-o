@@ -5,6 +5,7 @@ class_name BaseCollectible
 
 signal collection_ready
 signal hover_progress_changed(progress: float)
+signal collected(collectible: BaseCollectible)
 
 @export var data: CollectibleData
 
@@ -21,6 +22,8 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	add_to_group("collectibles")
+	collision_layer = BigOConstants.PHYSICS_LAYER_COLLECTIBLE
+	collision_mask = BigOConstants.PHYSICS_MASK_COLLECTIBLE
 	_setup_visuals()
 
 func set_data(new_data: CollectibleData) -> void:
@@ -46,15 +49,12 @@ func _process(delta: float) -> void:
 		_hover_timer += delta
 
 		if is_instance_valid(_hover_player) and _hover_player.complexity:
-			var required_time = _hover_player.complexity.get_hover_time()
-			var progress = _hover_timer / required_time
+			var required_time: float = _hover_player.complexity.get_hover_time()
+			var progress: float = _hover_timer / required_time
 			hover_progress_changed.emit(minf(progress, 1.0))
 			
 			if _hover_timer >= required_time:
 				_trigger_collection(_hover_player)
-
-func _physics_process(_delta: float) -> void:
-	pass
 
 func _trigger_collection(player: Player) -> void:
 	if not data or not is_instance_valid(player):
@@ -88,7 +88,7 @@ func activate() -> void:
 		sprite.modulate = Color.WHITE
 		sprite.rotation = 0.0
 		
-	var start_scale = sprite.scale
+	var start_scale: Vector2 = sprite.scale
 	sprite.scale = Vector2.ZERO
 	create_tween().tween_property(sprite, "scale", start_scale, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
@@ -109,8 +109,7 @@ func deactivate() -> void:
 	if _float_tween:
 		_float_tween.kill()
 		_float_tween = null
-	if is_instance_valid(CollectiblePool):
-		CollectiblePool.return_to_pool(self)
+	collected.emit(self)
 
 func _on_body_entered(body: Node2D) -> void:
 	if not _is_active:
@@ -122,7 +121,10 @@ func _on_body_entered(body: Node2D) -> void:
 			_is_hovering = true
 			_hover_timer = 0.0
 		else:
-			print("[COLLECT] Pickup! Type: ", data.animation_name if data else "unknown")
+			var pickup_type: String = "unknown"
+			if data:
+				pickup_type = String(data.animation_name)
+			print("[COLLECT] Pickup! Type: ", pickup_type)
 			_trigger_collection(body as Player)
 
 func _on_body_exited(body: Node2D) -> void:
@@ -136,9 +138,5 @@ func _on_body_exited(body: Node2D) -> void:
 		hover_progress_changed.emit(0.0)
 
 func _on_collected() -> void:
-	# Play collection sound via autoload
-	var sm = get_node_or_null("/root/SoundManager")
-	if sm:
-		sm.play_collect()
-		print("[Sound] Playing collect sound")
+	GameEvents.collectible_picked_up.emit(self)
 	deactivate()

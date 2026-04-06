@@ -46,3 +46,12 @@ const DEBT_LOGS = [
 const MILESTONE_INTERVAL: int = 1000 # LOC between color shifts
 const RAM_DUMP_AMOUNT: float = 0.2    # 20% relief on fork
 const BASE_FRICTION: float = 100.0
+
+# --- Physics Layers (2D) ---
+const PHYSICS_LAYER_PLAYER: int = 1 << 0
+const PHYSICS_LAYER_ENEMY: int = 1 << 1
+const PHYSICS_LAYER_COLLECTIBLE: int = 1 << 2
+
+const PHYSICS_MASK_PLAYER: int = PHYSICS_LAYER_ENEMY | PHYSICS_LAYER_COLLECTIBLE
+const PHYSICS_MASK_ENEMY: int = PHYSICS_LAYER_PLAYER
+const PHYSICS_MASK_COLLECTIBLE: int = PHYSICS_LAYER_PLAYER

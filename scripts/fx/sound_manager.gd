@@ -22,7 +22,8 @@ const MUSIC_MAIN = preload("res://assets/sounds/Music/Cartoon, Jéja - On & On (
 var _music_player: AudioStreamPlayer
 
 func _ready() -> void:
-	pass  # No persistent player needed
+	if GameEvents:
+		GameEvents.collectible_picked_up.connect(_on_collectible_picked_up)
 
 ## Plays a specific sound stream.
 func play_sound(stream: AudioStream, pitch: float = 1.0) -> void:
@@ -98,3 +99,6 @@ func play_menu_select() -> void:
 ## Plays the menu cancel sound.
 func play_menu_cancel() -> void:
 	play_sound(SOUND_MENU_CANCEL)
+
+func _on_collectible_picked_up(_collectible: Node2D) -> void:
+	play_collect()

@@ -45,6 +45,8 @@ var _shields: int = 0
 
 func _ready() -> void:
 	add_to_group("player")
+	collision_layer = BigOConstants.PHYSICS_LAYER_PLAYER
+	collision_mask = BigOConstants.PHYSICS_MASK_PLAYER
 	
 	if not movement or not complexity or not visuals:
 		push_error("Player: Missing component assignments in the Inspector!")
