@@ -98,11 +98,14 @@ The game features an infinite scrolling continuous world.
 * **Sector-Based Backgrounds:** The background dynamically shifts visual patterns based on the player's Euclidean distance from the origin.
 
 ### Visual Polish & Shaders
-* **Brainrot Shaders:** Visual "Deep-Fry" filters, chromatic aberration, and screen shakes that intensify as the system nears a 100% RAM crash.
-* **Complexity Aesthetics:** $O(2^n)$ is red, shaky, and pixelated; $O(1)$ is pure white, glowing, and high-definition.
+* **Matrix Background Shader:** A customizable canvas shader that renders a grid of binary digits with subtle jitter, scanlines, and flicker. The shader adapts based on player progress:
+  * Zone transitions (Cache, Stack, Bus) adjust grid size and scanline speed.
+  * Jitter intensity scales with player distance from origin.
+  * Background color cycles through thematic colors (dark green, deep blue, dark purple, dark red) based on LOC milestones.
+* **Complexity Aesthetics:** $O(2^n)$ appears red, shaky, pixelated; $O(1)$ appears pure white, glowing, high‑definition.
 
-### The $O(1)$ Singularity
-Reaching the final tier triggers an automatic "Win Sequence" where the player's execution pulse expands to delete all Technical Debt from the screen, followed by a transition to the Kernel.
+### The $O(1)$ Singularity (Future Feature)
+The intended win condition is to reach the $O(1)$ tier, which would trigger a victory sequence where the player expands to purge all remaining Technical Debt and transition to the Kernel. This feature is currently a placeholder and not yet implemented in the game.
 
 ### Game Over Screen (BSOD)
 When RAM reaches 100%, a Blue Screen of Death appears:
@@ -117,9 +120,9 @@ When RAM reaches 100%, a Blue Screen of Death appears:
 
 ### Lines of Code (LOC)
 Primary score metric representing the amount of data processed and optimized.
-* **Alpha Phase (0-500 LOC):** Stable system, introductory enemies.
-* **Beta Phase (500-1500 LOC):** Increased enemy density, subtle glitch effects.
-* **Production (1500+ LOC):** Critical instability, aggressive technical debt, max glitch intensity.
+* **Alpha Phase (0‑1000 LOC):** Early stage with basic enemy types (Tier 1). Background uses the first thematic color.
+* **Beta Phase (1000‑2000 LOC):** Intermediate stage with additional enemy types (Tier 2). Background shifts to the second thematic color.
+* **Production Phase (2000+ LOC):** Advanced stage with full enemy variety (Tier 3). Background cycles through remaining thematic colors, and visual intensity increases.
 
 ---
 
@@ -155,7 +158,7 @@ World
 ├── GameOver (BSOD screen)
 ├── HUD
 │   └── RAMMeter
-└── WaveTimer
+└── DifficultyTimer
 ```
 
 ---
@@ -178,7 +181,7 @@ World
 * **RAM Meter:** Vertical progress bar showing current RAM usage
 * **Complexity Display:** Shows current Big O tier
 * **Complexity Meter:** Horizontal bar tracking commits until the next tier drop. Flashes and resets on tier drop with a "compile complete" sound cue.
-* **Wave Counter:** Current wave number
+* **Difficulty Counter:** Current difficulty tier
 
 ---
 
@@ -222,13 +225,20 @@ World
 
 ---
 
-## Wave System
+## Difficulty & Enemy Spawning
+The game uses a time‑based difficulty tier system that influences enemy spawn rates and types.
+
 | Parameter | Value | Description |
 |-----------|-------|-------------|
-| `base_wave_size` | 3 | Starting enemies per wave |
-| `enemies_per_wave_increase` | 3 | Additional enemies each wave |
-| `spawn_delay` | 1.5s | Time between enemy spawns |
-| `time_between_waves` | 8.0s | Rest period between waves |
+| `initial_spawn_delay` | 3.5 s | Spawn interval at start of play |
+| `min_spawn_delay` | 1.2 s | Minimum spawn interval as difficulty ramps |
+| `spawn_delay_decrease_rate` | 0.005 s per second | How quickly the spawn interval shortens |
+| `tier_1_duration` | 30 s | Duration of Tier 1 (basic enemies) |
+| `tier_2_duration` | 90 s | Duration of Tier 2 (additional enemy types) |
+| `max_active_enemies` | 30 | Upper cap on simultaneous enemies |
+| `spawn_distance_min` | 400 px | Minimum distance from player for spawn |
+| `spawn_distance_max` | 800 px | Maximum distance from player for spawn |
+| `max_consecutive_same_type` | 2 | Prevents more than two identical enemies in a row |
 
 ---
 
