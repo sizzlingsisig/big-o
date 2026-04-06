@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const SectorGridScript = preload("res://scripts/globals/sector_grid.gd")
+
 ## Synchronizes the background shader and labels with the active camera.
 
 @onready var shader_rect: ColorRect = $ShaderRect
@@ -15,8 +17,7 @@ func _ready() -> void:
 	# Initial zone setup
 	var camera = get_viewport().get_camera_2d()
 	if camera:
-		_on_sector_changed(Vector2i(int(camera.get_screen_center_position().x / BigOConstants.SECTOR_SIZE), 
-									int(camera.get_screen_center_position().y / BigOConstants.SECTOR_SIZE)))
+		_on_sector_changed(SectorGridScript.get_sector_at_position(camera.get_screen_center_position()))
 	
 	if _progression_manager:
 		_progression_manager.milestone_reached.connect(_on_milestone_reached)

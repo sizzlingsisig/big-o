@@ -129,21 +129,19 @@ func _on_area_entered(_area: Area2D) -> void:
 
 func _on_body_entered(body: Node) -> void:
 	if body is Player and not _has_hit_player:
+		var player: Player = body as Player
 		_has_hit_player = true
 		
-		if body.has_method("consume_shield") and body.consume_shield():
+		if player.consume_shield():
 			print("[ENEMY] %s hit player shield! Absorbed!" % name)
 			ScreenFX.shake(3.0, 0.2)
 			die()
 			return
 			
 		print("[ENEMY] %s hit player! RAM +%.0f%%" % [name, ram_damage])
-		
-		# Decoupled interaction via Player methods or GameEvents
-		if body.has_method("take_damage"):
-			body.take_damage(contact_damage)
-		if body.has_method("add_ram"):
-			body.add_ram(ram_damage)
+
+		player.take_damage(contact_damage)
+		player.add_ram(ram_damage)
 			
 		die()
 

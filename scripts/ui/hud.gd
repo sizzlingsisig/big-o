@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const SectorGridScript = preload("res://scripts/globals/sector_grid.gd")
+
 @onready var ram_progress_bar: ProgressBar = %RAMProgressBar
 @onready var ram_percent_label: Label = %RAMPercentLabel
 @onready var complexity_value: Label = %ComplexityValue
@@ -118,9 +120,7 @@ func _process(_delta: float) -> void:
 	var camera = get_viewport().get_camera_2d()
 	if camera:
 		var pos = camera.get_screen_center_position()
-		
-		var sector_size = BigOConstants.SECTOR_SIZE
-		var current_sector = Vector2i(int(pos.x / sector_size), int(pos.y / sector_size))
+		var current_sector: Vector2i = SectorGridScript.get_sector_at_position(pos)
 		if current_sector != _last_sector:
 			_last_sector = current_sector
 			GameEvents.sector_changed.emit(current_sector)
@@ -144,7 +144,7 @@ func _hide_ram_warning() -> void:
 	if ram_warning:
 		ram_warning.visible = false
 
-func _on_difficulty_increased(tier: int, time_elapsed: float) -> void:
+func _on_difficulty_increased(tier: int, _time_elapsed: float) -> void:
 	if tier_value:
 		tier_value.text = "TIER " + str(tier)
 		_react_label_change(tier_value)

@@ -9,8 +9,10 @@ func _init() -> void:
 	requires_hover = false
 	float_animation = true
 
-func apply_effect(player: Node2D) -> void:
-	if player.has_node("MovementComponent"):
-		var move_comp = player.get_node("MovementComponent")
-		if move_comp.has_method("trigger_l1_cache"):
-			move_comp.trigger_l1_cache(duration)
+func apply_effect(player: Node) -> void:
+	if not player is Player:
+		return
+
+	var typed_player: Player = player as Player
+	if typed_player.movement:
+		typed_player.movement.trigger_l1_cache(duration)

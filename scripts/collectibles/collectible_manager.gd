@@ -1,6 +1,8 @@
 extends Node
 class_name CollectiblePoolManager
 
+const SectorGridScript = preload("res://scripts/globals/sector_grid.gd")
+
 ## Manages object pooling for collectibles to prevent GC stutters.
 ## Recycles collectibles instead of continuously instantiating and freeing them.
 ## Handles Chunk-Based Spawning in an infinite map.
@@ -24,6 +26,7 @@ var _current_sector: Vector2i = Vector2i(999999, 999999) # Invalid initial secto
 
 var _player: Node2D
 var _respawn_timer: float = 0.0
+var _warned_pool_exhausted: bool = false
 
 func _ready() -> void:
 	add_to_group("collectible_manager")
@@ -53,19 +56,14 @@ func set_player(player: Node2D) -> void:
 	_player = player
 	if _player:
 		# Bootstrap the very first sector immediately
-		var sector_size = BigOConstants.SECTOR_SIZE
-		var pos = _player.global_position
-		_on_sector_changed(Vector2i(int(pos.x / sector_size), int(pos.y / sector_size)))
+		_on_sector_changed(SectorGridScript.get_sector_at_position(_player.global_position))
 
 func _on_sector_changed(coords: Vector2i) -> void:
 	_current_sector = coords
 	_update_sectors()
 
 func _update_sectors() -> void:
-	var needed_sectors = []
-	for x in range(-active_sector_radius, active_sector_radius + 1):
-		for y in range(-active_sector_radius, active_sector_radius + 1):
-			needed_sectors.append(_current_sector + Vector2i(x, y))
+	var needed_sectors: Array[Vector2i] = SectorGridScript.get_adjacent_sectors(_current_sector, active_sector_radius)
 			
 	# Unload distant sectors
 	var sectors_to_remove = []
@@ -97,7 +95,7 @@ func _spawn_sector(coords: Vector2i) -> void:
 	var seed_val = (coords.x * 73856093) ^ (coords.y * 19349663)
 	seed(seed_val)
 	
-	var sector_center = Vector2(coords.x * BigOConstants.SECTOR_SIZE + (BigOConstants.SECTOR_SIZE/2.0), coords.y * BigOConstants.SECTOR_SIZE + (BigOConstants.SECTOR_SIZE/2.0))
+	var sector_center: Vector2 = SectorGridScript.get_sector_center(coords)
 	var items_to_spawn = randi_range(int(items_per_sector * 0.5), items_per_sector)
 	var items_array: Array[Node2D] = []
 	
@@ -111,19 +109,7 @@ func _spawn_sector(coords: Vector2i) -> void:
 		var spawn_pos = sector_center + relative_pos
 		var collectible = get_collectible()
 		if collectible:
-			if collectible.has_method("set_data"):
-				collectible.set_data(_get_random_collectible_data())
-			
-			collectible.global_position = spawn_pos
-			collectible.visible = true
-			collectible.monitoring = true
-			collectible.monitorable = true
-			collectible.set_process(true)
-			collectible.set_physics_process(true)
-			
-			if collectible.has_method("activate"):
-				collectible.activate()
-			
+			_initialize_collectible(collectible, spawn_pos, _get_random_collectible_data())
 			items_array.append(collectible)
 			
 	_active_sectors[coords] = items_array
@@ -131,7 +117,7 @@ func _spawn_sector(coords: Vector2i) -> void:
 
 func _pick_random_spawn_pattern(amount: int) -> SpawnPattern:
 	# Pure Agar.io style: scatter uniformly across the entire sector
-	var half_sector = BigOConstants.SECTOR_SIZE / 2.0
+	var half_sector = SectorGridScript.get_half_sector_size()
 	return SpawnPattern.create_scatter(amount, half_sector)
 
 func _initialize_pool() -> void:
@@ -149,11 +135,15 @@ func _initialize_pool() -> void:
 
 func get_collectible() -> Node2D:
 	if _available_collectibles.is_empty():
+		if not _warned_pool_exhausted:
+			push_warning("CollectiblePoolManager: pool exhausted. Increase pool_size or reduce spawned density.")
+			_warned_pool_exhausted = true
 		return null
 	
 	var collectible = _available_collectibles.pop_back() as Node2D
 	if collectible and is_instance_valid(collectible):
 		_active_collectibles.append(collectible)
+		_warned_pool_exhausted = false
 	return collectible
 
 func return_to_pool(collectible: Node2D) -> void:
@@ -182,19 +172,20 @@ func return_to_pool(collectible: Node2D) -> void:
 func spawn_specific_collectible(pos: Vector2, data: CollectibleData) -> void:
 	var collectible = get_collectible()
 	if not collectible: return
-	
-	if collectible.has_method("set_data"):
-		collectible.set_data(data)
-		
-	collectible.global_position = pos
-	collectible.visible = true
-	collectible.monitoring = true
-	collectible.monitorable = true
-	collectible.set_process(true)
-	collectible.set_physics_process(true)
-	
-	if collectible.has_method("activate"):
-		collectible.activate()
+
+	_initialize_collectible(collectible, pos, data)
+
+func _initialize_collectible(collectible: Node2D, spawn_pos: Vector2, data: CollectibleData) -> void:
+	if collectible is BaseCollectible:
+		var typed_collectible: BaseCollectible = collectible as BaseCollectible
+		typed_collectible.set_data(data)
+		typed_collectible.global_position = spawn_pos
+		typed_collectible.visible = true
+		typed_collectible.monitoring = true
+		typed_collectible.monitorable = true
+		typed_collectible.set_process(true)
+		typed_collectible.set_physics_process(true)
+		typed_collectible.activate()
 
 func _get_random_collectible_data() -> CollectibleData:
 	if collectible_types.is_empty():
@@ -211,8 +202,10 @@ func _get_random_collectible_data() -> CollectibleData:
 		current_weight += data.spawn_weight
 		if rand <= current_weight:
 			return data
-			
-	return collectible_types[0]
+
+	var fallback: CollectibleData = collectible_types[0]
+	push_warning("CollectiblePoolManager: weighted collectible roll failed, using fallback type.")
+	return fallback
 
 func _try_respawn_dormant() -> void:
 	if _available_collectibles.is_empty() or not _player:
@@ -225,18 +218,7 @@ func _try_respawn_dormant() -> void:
 			
 			var collectible = get_collectible()
 			if collectible:
-				if collectible.has_method("set_data"):
-					collectible.set_data(_get_random_collectible_data())
-				
-				collectible.global_position = spawn_pos
-				collectible.visible = true
-				collectible.monitoring = true
-				collectible.monitorable = true
-				collectible.set_process(true)
-				collectible.set_physics_process(true)
-				
-				if collectible.has_method("activate"):
-					collectible.activate()
+				_initialize_collectible(collectible, spawn_pos, _get_random_collectible_data())
 				
 				_active_sectors[_current_sector].append(collectible)
 

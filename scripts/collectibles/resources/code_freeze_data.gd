@@ -9,6 +9,6 @@ func _init() -> void:
 	requires_hover = false
 	float_animation = true
 
-func apply_effect(_player: Node2D) -> void:
+func apply_effect(_player: Node) -> void:
 	if GameEvents:
 		GameEvents.time_frozen_started.emit(freeze_duration)

@@ -12,6 +12,7 @@ var _is_active: bool = false
 var _is_hovering: bool = false
 var _hover_timer: float = 0.0
 var _float_tween: Tween
+var _hover_player: Player
 
 @onready var sprite: AnimatedSprite2D = %AnimatedSprite2D
 @onready var hover_zone: CollisionShape2D = $HoverZone/CollisionShape2D
@@ -43,22 +44,24 @@ func _process(delta: float) -> void:
 	
 	if _is_hovering and data and data.requires_hover:
 		_hover_timer += delta
-		
-		var player = get_tree().get_first_node_in_group("player")
-		if player and player.complexity:
-			var required_time = player.complexity.get_hover_time()
+
+		if is_instance_valid(_hover_player) and _hover_player.complexity:
+			var required_time = _hover_player.complexity.get_hover_time()
 			var progress = _hover_timer / required_time
 			hover_progress_changed.emit(minf(progress, 1.0))
 			
 			if _hover_timer >= required_time:
-				_trigger_collection(player)
+				_trigger_collection(_hover_player)
 
 func _physics_process(_delta: float) -> void:
 	pass
 
-func _trigger_collection(player: Node2D) -> void:
-	if data:
-		data.apply_effect(player)
+func _trigger_collection(player: Player) -> void:
+	if not data or not is_instance_valid(player):
+		deactivate()
+		return
+
+	data.apply_effect(player)
 	collection_ready.emit()
 	_on_collected()
 
@@ -66,6 +69,7 @@ func activate() -> void:
 	_is_active = true
 	_hover_timer = 0.0
 	_is_hovering = false
+	_hover_player = null
 	
 	if data:
 		if data.float_animation:
@@ -101,6 +105,7 @@ func deactivate() -> void:
 	_is_active = false
 	_is_hovering = false
 	_hover_timer = 0.0
+	_hover_player = null
 	if _float_tween:
 		_float_tween.kill()
 		_float_tween = null
@@ -112,12 +117,13 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	
 	if body is Player:
+		_hover_player = body
 		if data and data.requires_hover:
 			_is_hovering = true
 			_hover_timer = 0.0
 		else:
 			print("[COLLECT] Pickup! Type: ", data.animation_name if data else "unknown")
-			_trigger_collection(body)
+			_trigger_collection(body as Player)
 
 func _on_body_exited(body: Node2D) -> void:
 	if not _is_active:
@@ -126,6 +132,7 @@ func _on_body_exited(body: Node2D) -> void:
 	if body is Player:
 		_is_hovering = false
 		_hover_timer = 0.0
+		_hover_player = null
 		hover_progress_changed.emit(0.0)
 
 func _on_collected() -> void:

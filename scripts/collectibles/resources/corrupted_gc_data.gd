@@ -9,8 +9,10 @@ func _init() -> void:
 	requires_hover = false
 	float_animation = true
 
-func apply_effect(player: Node2D) -> void:
-	if player.has_node("SystemResourcesComponent"):
-		var sys_res = player.get_node("SystemResourcesComponent")
-		if sys_res.has_method("add_ram"):
-			sys_res.add_ram(ram_damage)
+func apply_effect(player: Node) -> void:
+	if not player is Player:
+		return
+
+	var typed_player: Player = player as Player
+	if typed_player.system_resources:
+		typed_player.system_resources.add_ram(ram_damage)
