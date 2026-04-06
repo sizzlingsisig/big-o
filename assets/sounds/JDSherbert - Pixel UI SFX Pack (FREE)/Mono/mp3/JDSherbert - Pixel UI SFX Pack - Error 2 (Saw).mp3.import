@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dqv1mvyi174cp"
+path="res://.godot/imported/JDSherbert - Pixel UI SFX Pack - Error 2 (Saw).mp3-a004d1e7e7830311d96de5b9de6d9370.mp3str"
+
+[deps]
+
+source_file="res://assets/sounds/JDSherbert - Pixel UI SFX Pack (FREE)/Mono/mp3/JDSherbert - Pixel UI SFX Pack - Error 2 (Saw).mp3"
+dest_files=["res://.godot/imported/JDSherbert - Pixel UI SFX Pack - Error 2 (Saw).mp3-a004d1e7e7830311d96de5b9de6d9370.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

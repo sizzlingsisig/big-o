@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://5hst4igcpfjf"
+path="res://.godot/imported/JDSherbert - Pixel UI SFX Pack - Popup Open 1 (Sine).wav-ac4c880d7b6a1bfff22f1c687c072337.sample"
+
+[deps]
+
+source_file="res://assets/sounds/JDSherbert - Pixel UI SFX Pack (FREE)/Stereo/wav (SD)/JDSherbert - Pixel UI SFX Pack - Popup Open 1 (Sine).wav"
+dest_files=["res://.godot/imported/JDSherbert - Pixel UI SFX Pack - Popup Open 1 (Sine).wav-ac4c880d7b6a1bfff22f1c687c072337.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2
