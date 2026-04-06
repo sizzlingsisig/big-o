@@ -34,7 +34,7 @@ The 6 tiers heavily modify movement physics, collision, and input responsiveness
 | $O(1)$ (Constant) | 220 px/s | 22px | 0.0 | 0.0s |
 
 ### RAM Gauge (Health)
-A survival health bar. RAM **only increases** when enemies hit you. The only way to reduce RAM is to use the **Zombie Fork** ability (Spacebar), which clears 20% RAM.
+A survival health bar. RAM **only increases** when enemies hit you. The only way to reduce RAM is to use the **Zombie Fork** ability (Spacebar), which clears 50% of current RAM.
 
 **Critical Threshold:** 70% - triggers warning state  
 **Game Over:** 100% - triggers BSOD crash screen
@@ -57,11 +57,13 @@ When hit by an enemy:
 2. "ERROR" label appears above player
 3. Debug console logs: `[ENEMY] X hit player! RAM +Y%`
 
+**Note:** Damage does NOT cause automatic complexity regression — it only increases RAM. Players must use the Zombie Fork (Spacebar) to manually increase complexity.
+
 ### The "Zombie Fork"
 *"Throw your child to death; his ghost lingers in your system, bloating your execution."*
 
 **Mechanism:** Split off a ghostly child process that flies forward.
-* **Benefit:** Instantly clears 20% RAM
+* **Benefit:** Instantly clears 50% of current RAM
 * **Cost:** Forces player into a slower Big O tier (accumulated debt)
 * **Cooldown:** 2 seconds
 
@@ -71,11 +73,11 @@ The win condition is pure grind and survival. Collecting data fills a Complexity
 **Complexity Meter Scaling:**
 | Current Tier | Commits Required |
 |--------------|------------------|
-| $O(2^n) \rightarrow O(n^2)$ | 2 |
-| $O(n^2) \rightarrow O(n \log n)$ | 3 |
-| $O(n \log n) \rightarrow O(n)$ | 4 |
-| $O(n) \rightarrow O(\log n)$ | 5 |
-| $O(\log n) \rightarrow O(1)$ | 6 |
+| $O(2^n) \rightarrow O(n^2)$ | 10 |
+| $O(n^2) \rightarrow O(n \log n)$ | 15 |
+| $O(n \log n) \rightarrow O(n)$ | 20 |
+| $O(n) \rightarrow O(\log n)$ | 25 |
+| $O(\log n) \rightarrow O(1)$ | 30 |
 
 *Why it scales:* Early tiers are miserable to play, so relief comes faster. The final stretch toward $O(1)$ is intentionally the hardest gate — those last 6 commits while fast and tiny should feel like a sprint against the clock.
 
