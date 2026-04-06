@@ -222,15 +222,21 @@ func _input(event: InputEvent) -> void:
 	
 	if OS.is_debug_build() or demo_mode:
 		if event.is_action_pressed("ui_up"):
-			if demo_mode:
-				complexity.set_tier(complexity.current_index + 1)
+			print("[Player] UP pressed, current: ", complexity.current_index)
+			# If at index 4 (O(n log n)), next press triggers victory
+			# This means you reach O(1) at index 5, then next press = victory
+			if complexity.current_index >= 4:
+				print("[Player] AT O(n log n) - NEXT UP TRIGGERS VICTORY!")
+				complexity.trigger_victory()
 			else:
-				start_processing()
+				# Otherwise advance one tier
+				var new_tier = complexity.current_index + 1
+				complexity.set_tier(new_tier)
+				print("[Player] Set to tier: ", new_tier)
 		if event.is_action_pressed("ui_down"):
-			if demo_mode:
-				complexity.set_tier(complexity.current_index - 1)
-			else:
-				complexity.accumulate_debt()
+			var new_tier = complexity.current_index - 1
+			if new_tier >= 0:
+				complexity.set_tier(new_tier)
 
 func start_processing() -> void:
 	if _state == State.DEAD or _state == State.PROCESSING:
@@ -338,9 +344,9 @@ func take_damage(amount: float) -> void:
 		_change_state(State.IDLE)
 		return
 	
+	# Only accumulate ONE tier of debt per hit, regardless of damage amount
 	if complexity:
-		for i in range(int(amount)):
-			complexity.accumulate_debt()
+		complexity.accumulate_debt()
 	
 	ScreenFX.shake(4.0, 0.25)
 	_change_state(State.ERROR)

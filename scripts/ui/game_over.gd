@@ -126,10 +126,10 @@ func _input(event: InputEvent) -> void:
 		return
 	
 	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_select"):
-		event.accept()
+		get_viewport().set_input_as_handled()
 		_restart_to_play()
 	elif event.is_action_pressed("ui_cancel"):
-		event.accept()
+		get_viewport().set_input_as_handled()
 		_return_to_menu()
 
 func _restart_to_play() -> void:

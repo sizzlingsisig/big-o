@@ -4,10 +4,11 @@ class_name BigOConstants
 
 # --- Game State Identifiers ---
 ## Used for game_state_changed and game_state_requested signals
-## Access via: BigOConstants.STATE_MENU, BigOConstants.STATE_PLAY, BigOConstants.STATE_GAME_OVER
+## Access via: BigOConstants.STATE_MENU, BigOConstants.STATE_PLAY, BigOConstants.STATE_GAME_OVER, BigOConstants.STATE_VICTORY
 const STATE_MENU: String = "menu"
 const STATE_PLAY: String = "play"
 const STATE_GAME_OVER: String = "game_over"
+const STATE_VICTORY: String = "victory"
 
 ## State transition map:
 ## menu -> play (via start_requested)

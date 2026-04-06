@@ -12,6 +12,7 @@ class_name GameWorld
 @onready var control_disruptor: PlayerControlDisruptor = $ControlDisruptor
 @onready var game_over_screen: Node = $GameOver
 @onready var pause_menu: PauseMenu = $PauseMenu
+@onready var progression_manager: Node = null
 
 var _is_spawning_active: bool = false
 var _is_game_over: bool = false
@@ -32,10 +33,17 @@ func _ready() -> void:
 		enemy_spawner.difficulty_increased.connect(_on_difficulty_increased)
 		GameEvents.difficulty_increased.connect(_on_difficulty_increased)
 		player.thread_forked.connect(_on_player_thread_forked)
+		
+		# Connect to optimization complete for victory
+		if player.complexity:
+			player.complexity.optimization_complete.connect(_on_optimization_complete)
 	else:
 		push_error("World: Player node not found!")
 	
 	game_over_screen.visible = false
+	
+	# Get progression manager for victory stats
+	progression_manager = get_tree().get_first_node_in_group("progression_manager")
 	
 	if auto_start_spawning:
 		enemy_spawner.start_spawning()
@@ -160,3 +168,22 @@ func restart_game() -> void:
 	if auto_start_spawning:
 		enemy_spawner.start_spawning()
 		_is_spawning_active = true
+
+func _on_optimization_complete() -> void:
+	print("[World] Victory! Player reached O(1) - requesting victory state")
+	
+	# Get stats for victory screen
+	var loc_processed: int = 0
+	var time_survived: float = 0.0
+	
+	if progression_manager and progression_manager.has_method("get_total_loc"):
+		loc_processed = progression_manager.get_total_loc()
+	if enemy_spawner:
+		time_survived = enemy_spawner.get_elapsed_time()
+	
+	# Store stats for victory to retrieve
+	var victory_node = get_tree().get_first_node_in_group("victory_screen")
+	if victory_node and victory_node.has_method("show_victory"):
+		victory_node.show_victory(loc_processed, time_survived)
+	
+	GameEvents.game_state_requested.emit(BigOConstants.STATE_VICTORY)

@@ -10,6 +10,7 @@ signal optimization_ready
 signal processing_started
 signal processing_completed
 signal processing_interrupted
+signal optimization_complete
 
 @export_category("Configuration")
 ## List of complexity tiers ordered from most complex (O(2^n)) to least (O(1)).
@@ -64,23 +65,42 @@ func can_refactor_now() -> bool:
 
 ## Moves the player to a more efficient tier (e.g., O(n) -> O(log n)).
 func refactor() -> bool:
+	print("[ComplexityManager] refactor() called, current_index: ", current_index, ", size: ", complexity_tiers.size())
+	if current_index >= complexity_tiers.size() - 1:
+		# Already at O(1) - emit victory signal
+		print("[ComplexityManager] At O(1)! Emitting victory signal")
+		if not is_processing:
+			is_processing = true
+			processing_started.emit()
+			# Delay the victory to allow processing animation to play
+			await get_tree().create_timer(0.5).timeout
+			optimization_complete.emit()
+			print("[ComplexityManager] optimization_complete emitted!")
+		return false
+		
 	if current_index < complexity_tiers.size() - 1:
 		is_processing = true
 		processing_started.emit()
 		print("Processing started. Time: ", get_processing_time(), "s")
 		return true
-	else:
-		print("Already at maximum efficiency: O(1)!")
-		return false
+	
+	return false
 
 ## Called by player when processing timer completes
 func complete_refactor() -> void:
+	var was_at_max_before = current_index >= complexity_tiers.size() - 1
+	
 	set_tier(current_index + 1)
 	current_fragments = 0.0
 	optimization_progress_changed.emit(0.0, float(get_required_fragments()))
 	print("Refactored! Now at: ", current_complexity.tier_name)
 	is_processing = false
 	processing_completed.emit()
+	
+	# Check if we just reached O(1) - trigger victory!
+	if not was_at_max_before and current_index >= complexity_tiers.size() - 1:
+		print("[ComplexityManager] Reached O(1)! Emitting victory!")
+		optimization_complete.emit()
 
 ## Returns the processing time for refactoring based on current complexity.
 ## Scaling based on implementation plan: O(2^n) = 3s, O(n^2) = 1.5s, O(n) = 0.3s, O(1) = 0s.
@@ -116,6 +136,12 @@ func set_tier(index: int) -> void:
 
 func get_current_complexity() -> PlayerComplexity:
 	return current_complexity
+
+## Debug function to trigger victory when at max tier
+func trigger_victory() -> void:
+	print("[ComplexityManager] trigger_victory called!")
+	optimization_complete.emit()
+	print("[ComplexityManager] optimization_complete emitted!")
 
 func restore_progress_to_80_percent() -> void:
 	if is_processing:
