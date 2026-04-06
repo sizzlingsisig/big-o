@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dcrg5m7m2uxw8"
+path="res://.godot/imported/JDSherbert - Pixel UI SFX Pack - Error 1 (Square).wav-3e4460799ec989352e6e947d5de40616.sample"
+
+[deps]
+
+source_file="res://assets/sounds/JDSherbert - Pixel UI SFX Pack (FREE)/Mono/wav (SD)/JDSherbert - Pixel UI SFX Pack - Error 1 (Square).wav"
+dest_files=["res://.godot/imported/JDSherbert - Pixel UI SFX Pack - Error 1 (Square).wav-3e4460799ec989352e6e947d5de40616.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

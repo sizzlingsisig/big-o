@@ -1,9 +1,54 @@
 [gd_scene format=3 uid="uid://bbcn3jlpnx6"]
 
 [ext_resource type="Script" uid="uid://c8hdvkjujjk48" path="res://scripts/ui/main_menu.gd" id="1_xnlyu"]
-[ext_resource type="Texture2D" uid="uid://7w1xk65ja453" path="res://assets/backgrounds/bsod.png" id="2_1g8jr"]
 [ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://assets/fonts/ByteBounce.ttf" id="2_font"]
-[ext_resource type="Texture2D" uid="uid://1b3nu847euen" path="res://assets/backgrounds/gumball_falling_to_the_blue_screen_of_death_by_creatorman09_dkhqpe4-pre-removebg-preview.png" id="4_m1kxf"]
+[ext_resource type="Shader" uid="uid://cak5j68ubhw2i" path="res://shaders/matrix_background.gdshader" id="3_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_menu"]
+shader = ExtResource("3_shader")
+shader_parameter/base_color = Color(0.04, 0.12, 0.06, 1)
+shader_parameter/text_color = Color(0, 0.8, 0.3, 1)
+shader_parameter/scanline_speed = 0.03
+shader_parameter/scanline_count = 100.0
+shader_parameter/flicker_intensity = 0.005
+shader_parameter/jitter_intensity = 0.0
+shader_parameter/grid_size = 40.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 1, 0.4, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hover"]
+bg_color = Color(0, 0.3, 0.1, 0.3)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 1, 0.8, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pressed"]
+bg_color = Color(0, 0.2, 0.08, 0.5)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 1, 0.4, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="MainMenu" type="Control" unique_id=845210782]
 layout_mode = 3
@@ -18,76 +63,91 @@ size_flags_horizontal = 3
 size_flags_vertical = 6
 script = ExtResource("1_xnlyu")
 
-[node name="TextureRect" type="TextureRect" parent="." unique_id=1819867695]
-layout_mode = 1
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=1111111100]
+layer = -100
+
+[node name="ShaderRect" type="ColorRect" parent="BackgroundLayer"]
+material = SubResource("ShaderMaterial_menu")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -1529.0
-offset_top = -824.0
-offset_right = 1506.0
-offset_bottom = 829.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_1g8jr")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=229533581]
-layout_mode = 1
-color = Color(0, 0, 0, 1)
+[node name="GlitchLabels" type="Control" parent="BackgroundLayer"]
+modulate = Color(1, 1, 1, 0.25)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=221691148]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=221691148]
 layout_mode = 1
-offset_left = -250.0
-offset_top = -200.0
-offset_right = 250.0
-offset_bottom = 200.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ContentVBox" type="VBoxContainer" parent="CenterContainer" unique_id=211901510]
+layout_mode = 2
 alignment = 1
 
-[node name="Title" type="Label" parent="VBoxContainer" unique_id=1987785863]
+[node name="BrandingSection" type="VBoxContainer" parent="CenterContainer/ContentVBox" unique_id=1854380678]
 layout_mode = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="CenterContainer/ContentVBox/BrandingSection" unique_id=1987785863]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0.4, 1)
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 96
+theme_override_font_sizes/font_size = 120
 text = "BIG O"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Subtitle" type="Label" parent="VBoxContainer" unique_id=1752889210]
+[node name="Subtitle" type="Label" parent="CenterContainer/ContentVBox/BrandingSection" unique_id=1752889210]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(0, 0.8, 0.3, 0.5)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 36
 text = "TECHNICAL DEBT"
 horizontal_alignment = 1
 
-[node name="Spacer1" type="Control" parent="VBoxContainer" unique_id=492862650]
-custom_minimum_size = Vector2(0, 60)
+[node name="Spacer1" type="Control" parent="CenterContainer/ContentVBox" unique_id=492862650]
+custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 
-[node name="StartButton" type="Button" parent="VBoxContainer" unique_id=2020925447]
+[node name="ActionsSection" type="VBoxContainer" parent="CenterContainer/ContentVBox" unique_id=466932171]
+layout_mode = 2
+alignment = 1
+
+[node name="StartButton" type="Button" parent="CenterContainer/ContentVBox/ActionsSection" unique_id=2020925447]
 custom_minimum_size = Vector2(400, 70)
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0.4, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0, 1, 0.4, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_pressed")
 text = "START GAME"
 
-[node name="SettingsButton" type="Button" parent="VBoxContainer" unique_id=823886003]
+[node name="QuitButton" type="Button" parent="CenterContainer/ContentVBox/ActionsSection" unique_id=67148361]
 custom_minimum_size = Vector2(400, 70)
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0.4, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0, 1, 0.4, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 32
-text = "SETTINGS"
-
-[node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=67148361]
-custom_minimum_size = Vector2(400, 70)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_pressed")
 text = "QUIT"
-
-[node name="TextureRect2" type="TextureRect" parent="." unique_id=1211488964]
-layout_mode = 0
-offset_left = -327.0
-offset_top = -485.0
-offset_right = 340.0
-offset_bottom = -111.0
-texture = ExtResource("4_m1kxf")

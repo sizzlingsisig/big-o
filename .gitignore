@@ -3,3 +3,5 @@
 /android/
 .github/*
 .vscode/*
+.opencode/*
+AGENTS.MD

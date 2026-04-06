@@ -12,10 +12,11 @@ class_name GameWorld
 @onready var control_disruptor: PlayerControlDisruptor = $ControlDisruptor
 @onready var game_over_screen: Node = $GameOver
 @onready var pause_menu: PauseMenu = $PauseMenu
+@onready var progression_manager: Node = null
 
 var _is_spawning_active: bool = false
 var _is_game_over: bool = false
-var _is_paused: bool = false
+# Phase 3: Removed local _is_paused flag - use get_tree().paused as sole source of truth
 
 func _ready() -> void:
 	# Decoupled connections via Event Bus
@@ -32,10 +33,17 @@ func _ready() -> void:
 		enemy_spawner.difficulty_increased.connect(_on_difficulty_increased)
 		GameEvents.difficulty_increased.connect(_on_difficulty_increased)
 		player.thread_forked.connect(_on_player_thread_forked)
+		
+		# Connect to optimization complete for victory
+		if player.complexity:
+			player.complexity.optimization_complete.connect(_on_optimization_complete)
 	else:
 		push_error("World: Player node not found!")
 	
 	game_over_screen.visible = false
+	
+	# Get progression manager for victory stats
+	progression_manager = get_tree().get_first_node_in_group("progression_manager")
 	
 	if auto_start_spawning:
 		enemy_spawner.start_spawning()
@@ -47,12 +55,11 @@ func _input(event: InputEvent) -> void:
 			toggle_pause()
 
 func toggle_pause() -> void:
-	if _is_paused:
+	# Phase 3: Use get_tree().paused as single source of truth
+	if get_tree().paused:
 		pause_menu.hide_pause_menu()
-		_is_paused = false
 	else:
 		pause_menu.show_pause_menu()
-		_is_paused = true
 
 func _on_enemy_spawned(enemy: Node2D) -> void:
 	if enemy.get_parent() == null:
@@ -110,15 +117,19 @@ func _on_ram_overflow() -> void:
 	print("[World] RAM overflow - calling trigger_dead")
 	if player:
 		player.trigger_dead()
+	# Also trigger game over flow
+	if not _is_game_over:
+		_trigger_game_over("RAM_OVERFLOW")
 
 func _trigger_game_over(reason: String) -> void:
 	if _is_game_over:
 		return
 	
 	_is_game_over = true
-	_is_paused = false
 	enemy_spawner.stop_spawning()
 	_is_spawning_active = false
+	
+	GameEvents.game_state_requested.emit(BigOConstants.STATE_GAME_OVER)
 	
 	var ram_meter = get_ram_meter()
 	var current_ram = 100.0
@@ -137,7 +148,8 @@ func _trigger_game_over(reason: String) -> void:
 
 func restart_game() -> void:
 	_is_game_over = false
-	_is_paused = false
+	# Phase 3: Use tree.paused instead of local flag
+	get_tree().paused = false
 	game_over_screen.visible = false
 	
 	var hud = get_node_or_null("HUD")
@@ -159,3 +171,22 @@ func restart_game() -> void:
 	if auto_start_spawning:
 		enemy_spawner.start_spawning()
 		_is_spawning_active = true
+
+func _on_optimization_complete() -> void:
+	print("[World] Victory! Player reached O(1) - requesting victory state")
+	
+	# Get stats for victory screen
+	var loc_processed: int = 0
+	var time_survived: float = 0.0
+	
+	if progression_manager and progression_manager.has_method("get_total_loc"):
+		loc_processed = progression_manager.get_total_loc()
+	if enemy_spawner:
+		time_survived = enemy_spawner.get_elapsed_time()
+	
+	# Store stats for victory to retrieve
+	var victory_node = get_tree().get_first_node_in_group("victory_screen")
+	if victory_node and victory_node.has_method("show_victory"):
+		victory_node.show_victory(loc_processed, time_survived)
+	
+	GameEvents.game_state_requested.emit(BigOConstants.STATE_VICTORY)

@@ -38,6 +38,8 @@ signal wave_completed(wave_number: int)
 @warning_ignore("unused_signal")
 signal enemy_spawned(enemy: Node2D)
 @warning_ignore("unused_signal")
+signal collectible_picked_up(collectible: Node2D)
+@warning_ignore("unused_signal")
 signal status_effect_applied(effect_type: String, data: Dictionary)
 @warning_ignore("unused_signal")
 signal difficulty_increased(tier: int, time_elapsed: float)
@@ -49,6 +51,20 @@ signal sector_changed(coords: Vector2i)
 signal time_frozen_started(duration: float)
 @warning_ignore("unused_signal")
 signal time_frozen_ended
+
+# --- Game State ---
+@warning_ignore("unused_signal")
+signal game_state_changed(new_state: String)
+@warning_ignore("unused_signal")
+signal game_state_requested(requested_state: String)
+
+# --- Menu Intent Signals ---
+@warning_ignore("unused_signal")
+signal start_requested
+@warning_ignore("unused_signal")
+signal quit_requested
+@warning_ignore("unused_signal")
+signal restart_requested
 
 var _freeze_timer: Timer
 

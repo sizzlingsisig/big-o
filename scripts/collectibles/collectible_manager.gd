@@ -1,6 +1,8 @@
 extends Node
 class_name CollectiblePoolManager
 
+const SectorGridScript = preload("res://scripts/globals/sector_grid.gd")
+
 ## Manages object pooling for collectibles to prevent GC stutters.
 ## Recycles collectibles instead of continuously instantiating and freeing them.
 ## Handles Chunk-Based Spawning in an infinite map.
@@ -23,15 +25,25 @@ var _active_sectors: Dictionary = {} # Vector2i -> Array[Node2D]
 var _current_sector: Vector2i = Vector2i(999999, 999999) # Invalid initial sector
 
 var _player: Node2D
-var _respawn_timer: float = 0.0
+var _respawn_timer: Timer
+var _warned_pool_exhausted: bool = false
 
 func _ready() -> void:
 	add_to_group("collectible_manager")
 	_initialize_default_types()
 	_initialize_pool()
+	_setup_respawn_timer()
 	
 	if GameEvents:
 		GameEvents.sector_changed.connect(_on_sector_changed)
+
+func _setup_respawn_timer() -> void:
+	_respawn_timer = Timer.new()
+	_respawn_timer.wait_time = respawn_delay
+	_respawn_timer.one_shot = false
+	_respawn_timer.autostart = true
+	_respawn_timer.timeout.connect(_on_respawn_timeout)
+	add_child(_respawn_timer)
 
 func _initialize_default_types() -> void:
 	if not collectible_types.is_empty():
@@ -43,41 +55,33 @@ func _initialize_default_types() -> void:
 	collectible_types.append(CorruptedGCData.new())
 	collectible_types.append(HotfixPatchData.new())
 
-func _process(delta: float) -> void:
-	_respawn_timer += delta
-	if _respawn_timer >= respawn_delay:
-		_respawn_timer = 0.0
-		_try_respawn_dormant()
+func _on_respawn_timeout() -> void:
+	_try_respawn_dormant()
 
 func set_player(player: Node2D) -> void:
 	_player = player
 	if _player:
 		# Bootstrap the very first sector immediately
-		var sector_size = BigOConstants.SECTOR_SIZE
-		var pos = _player.global_position
-		_on_sector_changed(Vector2i(int(pos.x / sector_size), int(pos.y / sector_size)))
+		_on_sector_changed(SectorGridScript.get_sector_at_position(_player.global_position))
 
 func _on_sector_changed(coords: Vector2i) -> void:
 	_current_sector = coords
 	_update_sectors()
 
 func _update_sectors() -> void:
-	var needed_sectors = []
-	for x in range(-active_sector_radius, active_sector_radius + 1):
-		for y in range(-active_sector_radius, active_sector_radius + 1):
-			needed_sectors.append(_current_sector + Vector2i(x, y))
+	var needed_sectors: Array[Vector2i] = SectorGridScript.get_adjacent_sectors(_current_sector, active_sector_radius)
 			
 	# Unload distant sectors
-	var sectors_to_remove = []
-	for s in _active_sectors.keys():
+	var sectors_to_remove: Array[Vector2i] = []
+	for s: Vector2i in _active_sectors.keys():
 		if not needed_sectors.has(s):
 			sectors_to_remove.append(s)
 			
-	for s in sectors_to_remove:
+	for s: Vector2i in sectors_to_remove:
 		_unload_sector(s)
 			
 	# Spawn new sectors
-	for s in needed_sectors:
+	for s: Vector2i in needed_sectors:
 		if not _active_sectors.has(s):
 			_spawn_sector(s)
 
@@ -94,36 +98,24 @@ func _unload_sector(coords: Vector2i) -> void:
 
 func _spawn_sector(coords: Vector2i) -> void:
 	# Use sector coordinates as RNG seed so the chunk always generates the same pattern
-	var seed_val = (coords.x * 73856093) ^ (coords.y * 19349663)
+	var seed_val: int = (coords.x * 73856093) ^ (coords.y * 19349663)
 	seed(seed_val)
 	
-	var sector_center = Vector2(coords.x * BigOConstants.SECTOR_SIZE + (BigOConstants.SECTOR_SIZE/2.0), coords.y * BigOConstants.SECTOR_SIZE + (BigOConstants.SECTOR_SIZE/2.0))
-	var items_to_spawn = randi_range(int(items_per_sector * 0.5), items_per_sector)
+	var sector_center: Vector2 = SectorGridScript.get_sector_center(coords)
+	var items_to_spawn: int = randi_range(int(items_per_sector * 0.5), items_per_sector)
 	var items_array: Array[Node2D] = []
 	
-	var pattern = _pick_random_spawn_pattern(items_to_spawn)
+	var pattern: SpawnPattern = _pick_random_spawn_pattern(items_to_spawn)
 	print("[CHUNK] Populating sector ", coords, " with pattern: ", pattern.name)
 	
-	for relative_pos in pattern.relative_positions:
+	for relative_pos: Vector2 in pattern.relative_positions:
 		if _available_collectibles.is_empty():
 			break
 			
-		var spawn_pos = sector_center + relative_pos
-		var collectible = get_collectible()
+		var spawn_pos: Vector2 = sector_center + relative_pos
+		var collectible: Node2D = get_collectible()
 		if collectible:
-			if collectible.has_method("set_data"):
-				collectible.set_data(_get_random_collectible_data())
-			
-			collectible.global_position = spawn_pos
-			collectible.visible = true
-			collectible.monitoring = true
-			collectible.monitorable = true
-			collectible.set_process(true)
-			collectible.set_physics_process(true)
-			
-			if collectible.has_method("activate"):
-				collectible.activate()
-			
+			_initialize_collectible(collectible, spawn_pos, _get_random_collectible_data())
 			items_array.append(collectible)
 			
 	_active_sectors[coords] = items_array
@@ -131,13 +123,13 @@ func _spawn_sector(coords: Vector2i) -> void:
 
 func _pick_random_spawn_pattern(amount: int) -> SpawnPattern:
 	# Pure Agar.io style: scatter uniformly across the entire sector
-	var half_sector = BigOConstants.SECTOR_SIZE / 2.0
+	var half_sector = SectorGridScript.get_half_sector_size()
 	return SpawnPattern.create_scatter(amount, half_sector)
 
 func _initialize_pool() -> void:
-	for scene in collectible_scenes:
-		for i in range(pool_size / max(1, collectible_scenes.size())):
-			var collectible = scene.instantiate() as Node2D
+	for scene: PackedScene in collectible_scenes:
+		for _i: int in range(pool_size / max(1, collectible_scenes.size())):
+			var collectible: Node2D = scene.instantiate() as Node2D
 			if collectible:
 				collectible.set_process(false)
 				collectible.set_physics_process(false)
@@ -149,11 +141,15 @@ func _initialize_pool() -> void:
 
 func get_collectible() -> Node2D:
 	if _available_collectibles.is_empty():
+		if not _warned_pool_exhausted:
+			push_warning("CollectiblePoolManager: pool exhausted. Increase pool_size or reduce spawned density.")
+			_warned_pool_exhausted = true
 		return null
 	
-	var collectible = _available_collectibles.pop_back() as Node2D
+	var collectible: Node2D = _available_collectibles.pop_back() as Node2D
 	if collectible and is_instance_valid(collectible):
 		_active_collectibles.append(collectible)
+		_warned_pool_exhausted = false
 	return collectible
 
 func return_to_pool(collectible: Node2D) -> void:
@@ -165,7 +161,7 @@ func return_to_pool(collectible: Node2D) -> void:
 		_active_collectibles.remove_at(idx)
 	
 	# Try to find and remove from its sector tracker
-	for sector in _active_sectors.values():
+	for sector: Array[Node2D] in _active_sectors.values():
 		if sector.has(collectible):
 			sector.erase(collectible)
 			break
@@ -182,37 +178,42 @@ func return_to_pool(collectible: Node2D) -> void:
 func spawn_specific_collectible(pos: Vector2, data: CollectibleData) -> void:
 	var collectible = get_collectible()
 	if not collectible: return
-	
-	if collectible.has_method("set_data"):
-		collectible.set_data(data)
-		
-	collectible.global_position = pos
-	collectible.visible = true
-	collectible.monitoring = true
-	collectible.monitorable = true
-	collectible.set_process(true)
-	collectible.set_physics_process(true)
-	
-	if collectible.has_method("activate"):
-		collectible.activate()
+
+	_initialize_collectible(collectible, pos, data)
+
+func _initialize_collectible(collectible: Node2D, spawn_pos: Vector2, data: CollectibleData) -> void:
+	if collectible is BaseCollectible:
+		var typed_collectible: BaseCollectible = collectible as BaseCollectible
+		if not typed_collectible.collected.is_connected(_on_collectible_collected):
+			typed_collectible.collected.connect(_on_collectible_collected)
+		typed_collectible.set_data(data)
+		typed_collectible.global_position = spawn_pos
+		typed_collectible.visible = true
+		typed_collectible.monitoring = true
+		typed_collectible.monitorable = true
+		typed_collectible.set_process(true)
+		typed_collectible.set_physics_process(true)
+		typed_collectible.activate()
 
 func _get_random_collectible_data() -> CollectibleData:
 	if collectible_types.is_empty():
 		return null
 		
-	var total_weight = 0.0
-	for data in collectible_types:
+	var total_weight: float = 0.0
+	for data: CollectibleData in collectible_types:
 		total_weight += data.spawn_weight
 	
-	var rand = randf() * total_weight
-	var current_weight = 0.0
+	var roll: float = randf() * total_weight
+	var current_weight: float = 0.0
 	
-	for data in collectible_types:
+	for data: CollectibleData in collectible_types:
 		current_weight += data.spawn_weight
-		if rand <= current_weight:
+		if roll <= current_weight:
 			return data
-			
-	return collectible_types[0]
+
+	var fallback: CollectibleData = collectible_types[0]
+	push_warning("CollectiblePoolManager: weighted collectible roll failed, using fallback type.")
+	return fallback
 
 func _try_respawn_dormant() -> void:
 	if _available_collectibles.is_empty() or not _player:
@@ -221,24 +222,16 @@ func _try_respawn_dormant() -> void:
 	# Slowly repopulate sectors near the player
 	if _active_sectors.has(_current_sector):
 		if _active_sectors[_current_sector].size() < items_per_sector / 2.0:
-			var spawn_pos = _player.global_position + Vector2(randf_range(-500.0, 500.0), randf_range(-500.0, 500.0))
+			var spawn_pos: Vector2 = _player.global_position + Vector2(randf_range(-500.0, 500.0), randf_range(-500.0, 500.0))
 			
-			var collectible = get_collectible()
+			var collectible: Node2D = get_collectible()
 			if collectible:
-				if collectible.has_method("set_data"):
-					collectible.set_data(_get_random_collectible_data())
-				
-				collectible.global_position = spawn_pos
-				collectible.visible = true
-				collectible.monitoring = true
-				collectible.monitorable = true
-				collectible.set_process(true)
-				collectible.set_physics_process(true)
-				
-				if collectible.has_method("activate"):
-					collectible.activate()
+				_initialize_collectible(collectible, spawn_pos, _get_random_collectible_data())
 				
 				_active_sectors[_current_sector].append(collectible)
+
+func _on_collectible_collected(collectible: BaseCollectible) -> void:
+	return_to_pool(collectible)
 
 func get_pool_status() -> Dictionary:
 	return {

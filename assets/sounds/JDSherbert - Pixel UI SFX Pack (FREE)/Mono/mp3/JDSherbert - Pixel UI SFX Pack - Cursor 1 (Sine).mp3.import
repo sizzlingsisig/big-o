@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c03666b7tx0ba"
+path="res://.godot/imported/JDSherbert - Pixel UI SFX Pack - Cursor 1 (Sine).mp3-e60f625da21dd4410ca34197f93c135f.mp3str"
+
+[deps]
+
+source_file="res://assets/sounds/JDSherbert - Pixel UI SFX Pack (FREE)/Mono/mp3/JDSherbert - Pixel UI SFX Pack - Cursor 1 (Sine).mp3"
+dest_files=["res://.godot/imported/JDSherbert - Pixel UI SFX Pack - Cursor 1 (Sine).mp3-e60f625da21dd4410ca34197f93c135f.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -29,6 +29,9 @@ func get_corruption_level() -> float:
 	# Scales from 0.0 to 1.0 based on reaching 2000 LOC
 	return clamp(total_loc / 2000.0, 0.0, 1.0)
 
+func get_total_loc() -> int:
+	return total_loc
+
 # DEBUG: Manual progression for testing
 func _input(event: InputEvent) -> void:
 	if OS.is_debug_build() and event.is_action_pressed("ui_page_up"):

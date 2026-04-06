@@ -5,6 +5,7 @@ class_name BaseCollectible
 
 signal collection_ready
 signal hover_progress_changed(progress: float)
+signal collected(collectible: BaseCollectible)
 
 @export var data: CollectibleData
 
@@ -12,6 +13,7 @@ var _is_active: bool = false
 var _is_hovering: bool = false
 var _hover_timer: float = 0.0
 var _float_tween: Tween
+var _hover_player: Player
 
 @onready var sprite: AnimatedSprite2D = %AnimatedSprite2D
 @onready var hover_zone: CollisionShape2D = $HoverZone/CollisionShape2D
@@ -20,6 +22,8 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	add_to_group("collectibles")
+	collision_layer = BigOConstants.PHYSICS_LAYER_COLLECTIBLE
+	collision_mask = BigOConstants.PHYSICS_MASK_COLLECTIBLE
 	_setup_visuals()
 
 func set_data(new_data: CollectibleData) -> void:
@@ -43,22 +47,21 @@ func _process(delta: float) -> void:
 	
 	if _is_hovering and data and data.requires_hover:
 		_hover_timer += delta
-		
-		var player = get_tree().get_first_node_in_group("player")
-		if player and player.complexity:
-			var required_time = player.complexity.get_hover_time()
-			var progress = _hover_timer / required_time
+
+		if is_instance_valid(_hover_player) and _hover_player.complexity:
+			var required_time: float = _hover_player.complexity.get_hover_time()
+			var progress: float = _hover_timer / required_time
 			hover_progress_changed.emit(minf(progress, 1.0))
 			
 			if _hover_timer >= required_time:
-				_trigger_collection(player)
+				_trigger_collection(_hover_player)
 
-func _physics_process(_delta: float) -> void:
-	pass
+func _trigger_collection(player: Player) -> void:
+	if not data or not is_instance_valid(player):
+		deactivate()
+		return
 
-func _trigger_collection(player: Node2D) -> void:
-	if data:
-		data.apply_effect(player)
+	data.apply_effect(player)
 	collection_ready.emit()
 	_on_collected()
 
@@ -66,6 +69,7 @@ func activate() -> void:
 	_is_active = true
 	_hover_timer = 0.0
 	_is_hovering = false
+	_hover_player = null
 	
 	if data:
 		if data.float_animation:
@@ -84,7 +88,7 @@ func activate() -> void:
 		sprite.modulate = Color.WHITE
 		sprite.rotation = 0.0
 		
-	var start_scale = sprite.scale
+	var start_scale: Vector2 = sprite.scale
 	sprite.scale = Vector2.ZERO
 	create_tween().tween_property(sprite, "scale", start_scale, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
@@ -101,23 +105,27 @@ func deactivate() -> void:
 	_is_active = false
 	_is_hovering = false
 	_hover_timer = 0.0
+	_hover_player = null
 	if _float_tween:
 		_float_tween.kill()
 		_float_tween = null
-	if is_instance_valid(CollectiblePool):
-		CollectiblePool.return_to_pool(self)
+	collected.emit(self)
 
 func _on_body_entered(body: Node2D) -> void:
 	if not _is_active:
 		return
 	
 	if body is Player:
+		_hover_player = body
 		if data and data.requires_hover:
 			_is_hovering = true
 			_hover_timer = 0.0
 		else:
-			print("[COLLECT] Pickup! Type: ", data.animation_name if data else "unknown")
-			_trigger_collection(body)
+			var pickup_type: String = "unknown"
+			if data:
+				pickup_type = String(data.animation_name)
+			print("[COLLECT] Pickup! Type: ", pickup_type)
+			_trigger_collection(body as Player)
 
 func _on_body_exited(body: Node2D) -> void:
 	if not _is_active:
@@ -126,7 +134,9 @@ func _on_body_exited(body: Node2D) -> void:
 	if body is Player:
 		_is_hovering = false
 		_hover_timer = 0.0
+		_hover_player = null
 		hover_progress_changed.emit(0.0)
 
 func _on_collected() -> void:
+	GameEvents.collectible_picked_up.emit(self)
 	deactivate()

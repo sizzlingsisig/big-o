@@ -5,13 +5,29 @@ signal shake_finished
 var _shake_timer: float = 0.0
 var _shake_intensity: float = 0.0
 var _camera: Camera2D
+var _pending_camera: Camera2D = null
 
 func _ready() -> void:
-	_camera = get_tree().root.get_camera_2d()
+	pass
+
+func register_camera(cam: Camera2D) -> void:
+	_camera = cam
+	_pending_camera = cam
+
+func _get_active_camera() -> Camera2D:
+	if _camera and is_instance_valid(_camera):
+		return _camera
+	
+	if _pending_camera and is_instance_valid(_pending_camera):
+		_camera = _pending_camera
+		return _camera
+	
+	return null
 
 func shake(intensity: float, duration: float) -> void:
 	_shake_intensity = intensity
 	_shake_timer = duration
+	_camera = _get_active_camera()
 
 func flash(color: Color, duration: float) -> void:
 	var flash_rect = ColorRect.new()
@@ -40,6 +56,9 @@ func reset() -> void:
 func _process(delta: float) -> void:
 	if _shake_timer > 0:
 		_shake_timer -= delta
+		
+		if not _camera or not is_instance_valid(_camera):
+			_camera = _get_active_camera()
 		
 		if _camera:
 			var offset = Vector2(

@@ -11,5 +11,5 @@ class_name CollectibleData
 @export var requires_hover: bool = false
 
 ## Virtual method to be overridden by specific collectible types.
-func apply_effect(_player: Node2D) -> void:
+func apply_effect(_player: Node) -> void:
 	pass

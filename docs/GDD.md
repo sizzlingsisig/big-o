@@ -60,11 +60,13 @@ When hit by an enemy:
 3. Player is downgraded to a slower Big O tier (accumulated debt)
 4. Debug console logs: `[ENEMY] X hit player! RAM +Y%`
 
+**Note:** Damage does NOT cause automatic complexity regression — it only increases RAM. Players must use the Zombie Fork (Spacebar) to manually increase complexity.
+
 ### The "Zombie Fork"
 *"Throw your child to death; his ghost lingers in your system, bloating your execution."*
 
 **Mechanism:** Split off a ghostly child process that flies forward.
-* **Benefit:** Instantly clears 20% RAM
+* **Benefit:** Instantly clears 50% of current RAM
 * **Cost:** Forces player into a slower Big O tier (accumulated debt)
 * **Cooldown:** 2 seconds
 
@@ -101,11 +103,14 @@ The game features an infinite scrolling continuous world.
 * **Distance Culling:** Enemies leaving the screen enter a simplified AI state and are deleted if they exceed `CULL_DISTANCE` (2500px).
 
 ### Visual Polish & Shaders
-* **Brainrot Shaders:** Visual "Deep-Fry" filters, chromatic aberration, and screen shakes that intensify as the system nears a 100% RAM crash.
-* **Complexity Aesthetics:** $O(2^n)$ is red, shaky, and pixelated; $O(1)$ is pure white, glowing, and high-definition.
+* **Matrix Background Shader:** A customizable canvas shader that renders a grid of binary digits with subtle jitter, scanlines, and flicker. The shader adapts based on player progress:
+  * Zone transitions (Cache, Stack, Bus) adjust grid size and scanline speed.
+  * Jitter intensity scales with player distance from origin.
+  * Background color cycles through thematic colors (dark green, deep blue, dark purple, dark red) based on LOC milestones.
+* **Complexity Aesthetics:** $O(2^n)$ appears red, shaky, pixelated; $O(1)$ appears pure white, glowing, high‑definition.
 
-### The $O(1)$ Singularity
-Reaching the final tier triggers an automatic "Win Sequence" where the player's execution pulse expands to delete all Technical Debt from the screen, followed by a transition to the Kernel.
+### The $O(1)$ Singularity (Future Feature)
+The intended win condition is to reach the $O(1)$ tier, which would trigger a victory sequence where the player expands to purge all remaining Technical Debt and transition to the Kernel. This feature is currently a placeholder and not yet implemented in the game.
 
 ### Game Over Screen (BSOD)
 When RAM reaches 100%, a Blue Screen of Death appears:
@@ -163,7 +168,7 @@ World
 ├── GameOver (BSOD screen)
 ├── HUD
 │   └── RAMMeter
-└── WaveTimer
+└── DifficultyTimer
 ```
 
 ---

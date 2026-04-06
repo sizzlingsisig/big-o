@@ -10,10 +10,12 @@ func _init() -> void:
 	requires_hover = false
 	float_animation = true
 
-func apply_effect(player: Node2D) -> void:
-	if player.complexity:
-		player.complexity.add_optimization_fragment(fragment_amount)
-	if player.has_node("SystemResourcesComponent"):
-		var sys_res = player.get_node("SystemResourcesComponent")
-		if sys_res.has_method("clear_ram"):
-			sys_res.clear_ram(ram_clear)
+func apply_effect(player: Node) -> void:
+	if not player is Player:
+		return
+
+	var typed_player: Player = player as Player
+	if typed_player.complexity:
+		typed_player.complexity.add_optimization_fragment(fragment_amount)
+	if typed_player.system_resources:
+		typed_player.system_resources.clear_ram(ram_clear)

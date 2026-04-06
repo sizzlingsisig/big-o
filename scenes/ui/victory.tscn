@@ -1,0 +1,172 @@
+[gd_scene format=3 uid="uid://dswau4lh21qtv"]
+
+[ext_resource type="Script" uid="uid://iqf53gcpa8kk" path="res://scripts/ui/victory.gd" id="1_victory"]
+[ext_resource type="Texture2D" uid="uid://d1sqgrdmumpdp" path="res://assets/WinXp/Wallpapers/Windows_XP_Home_Edition.png" id="2_wallpaper"]
+[ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://assets/fonts/ByteBounce.ttf" id="3_font"]
+
+[node name="Victory" type="CanvasLayer" unique_id=230724488]
+process_mode = 3
+layer = 100
+script = ExtResource("1_victory")
+
+[node name="BootContainer" type="Control" parent="." unique_id=2007565454]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BootBackground" type="ColorRect" parent="BootContainer" unique_id=346521024]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="LoadingLabel" type="Label" parent="BootContainer" unique_id=296297752]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -20.0
+offset_right = 200.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 32
+text = "INITIALIZING KERNEL..."
+horizontal_alignment = 1
+
+[node name="LoadingBar" type="ProgressBar" parent="BootContainer" unique_id=421431707]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.6
+anchor_right = 0.5
+anchor_bottom = 0.6
+offset_left = -150.0
+offset_top = -10.0
+offset_right = 150.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 0
+show_percentage = false
+
+[node name="DesktopContainer" type="Control" parent="." unique_id=893291703]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="XPWallpaper" type="TextureRect" parent="DesktopContainer" unique_id=1275986878]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_wallpaper")
+expand_mode = 1
+
+[node name="VictoryOverlay" type="Control" parent="DesktopContainer" unique_id=1905214149]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OverlayBg" type="ColorRect" parent="DesktopContainer/VictoryOverlay" unique_id=1945162029]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="VictoryTitle" type="Label" parent="DesktopContainer/VictoryOverlay" unique_id=1559249877]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.25
+anchor_right = 0.5
+anchor_bottom = 0.25
+offset_left = -400.0
+offset_top = -50.0
+offset_right = 400.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.2, 0.8, 0.2, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 64
+text = "KERNEL ACCESS GRANTED"
+horizontal_alignment = 1
+
+[node name="StatsContainer" type="VBoxContainer" parent="DesktopContainer/VictoryOverlay" unique_id=742088398]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -50.0
+offset_right = 100.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="TimeLabel" type="Label" parent="DesktopContainer/VictoryOverlay/StatsContainer" unique_id=994178367]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 32
+text = "TIME: 00:00"
+horizontal_alignment = 1
+
+[node name="LOCLabel" type="Label" parent="DesktopContainer/VictoryOverlay/StatsContainer" unique_id=2003650682]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 32
+text = "LOC: 0"
+horizontal_alignment = 1
+
+[node name="RestartHint" type="Label" parent="DesktopContainer/VictoryOverlay" unique_id=953534263]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.75
+anchor_right = 0.5
+anchor_bottom = 0.75
+offset_left = -200.0
+offset_top = -15.0
+offset_right = 200.0
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 24
+text = "PRESS SPACE TO RESTART · PRESS ESC TO MENU"
+horizontal_alignment = 1
+
+[node name="Scanlines" type="ColorRect" parent="." unique_id=1925170868]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.3)

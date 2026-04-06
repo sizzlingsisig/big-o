@@ -9,6 +9,6 @@ func _init() -> void:
 	requires_hover = false
 	float_animation = true
 
-func apply_effect(player: Node2D) -> void:
-	if player.has_method("add_shields"):
-		player.add_shields(shield_amount)
+func apply_effect(player: Node) -> void:
+	if player is Player:
+		(player as Player).add_shields(shield_amount)
