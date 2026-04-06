@@ -109,10 +109,15 @@ func accumulate_debt() -> bool:
 ## Sets the complexity to a specific index and emits the change signal.
 func set_tier(index: int) -> void:
 	index = clampi(index, 0, complexity_tiers.size() - 1)
+	var previous_index = current_index
 	current_index = index
 	current_complexity = complexity_tiers[current_index]
 	
 	complexity_changed.emit(current_complexity)
+	if index > previous_index:
+		GameEvents.complexity_upgraded.emit()
+	elif index < previous_index:
+		GameEvents.complexity_downgraded.emit()
 
 func get_current_complexity() -> PlayerComplexity:
 	return current_complexity

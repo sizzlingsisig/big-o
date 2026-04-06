@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bx55is0fidsvp" path="res://scripts/ui/hud.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://bepddx2nmn1du" path="res://assets/fonts/ByteBounce.ttf" id="2_font"]
 [ext_resource type="Script" uid="uid://bvgwcfwm2jl5v" path="res://scripts/ui/ram_meter.gd" id="2_ram"]
-[ext_resource type="Script" uid="uid://cm_meter" path="res://scripts/ui/complexity_meter.gd" id="3_meter"]
+[ext_resource type="Script" uid="uid://ctey2dfg7p2r4" path="res://scripts/ui/complexity_meter.gd" id="3_meter"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
 bg_color = Color(0.04, 0.12, 0.06, 0.9)

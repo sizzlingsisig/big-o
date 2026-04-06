@@ -12,3 +12,4 @@ func _init() -> void:
 func apply_effect(player: Node2D) -> void:
 	if player.has_method("add_shields"):
 		player.add_shields(shield_amount)
+	GameEvents.hotfix_patch_collected.emit()

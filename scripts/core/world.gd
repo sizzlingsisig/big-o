@@ -117,6 +117,7 @@ func _trigger_game_over(reason: String) -> void:
 	if _is_game_over:
 		return
 	
+	GameEvents.game_over_transition.emit()
 	_is_game_over = true
 	_is_paused = false
 	enemy_spawner.stop_spawning()
@@ -135,7 +136,7 @@ func _trigger_game_over(reason: String) -> void:
 	else:
 		push_error("GameOver screen or method not found!")
 		print("game_over_screen: ", game_over_screen)
-		print("has method: ", game_over_screen.has_method("show_game_over") if game_over_screen else "N/A")
+		print("has method: ", str(game_over_screen.has_method("show_game_over")) if game_over_screen else "N/A")
 
 func restart_game() -> void:
 	_is_game_over = false

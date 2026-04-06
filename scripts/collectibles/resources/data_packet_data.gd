@@ -19,3 +19,4 @@ func apply_effect(player: Node2D) -> void:
 		if sys_res.has_method("clear_ram"):
 			sys_res.clear_ram(heal_amount)
 			sys_res.clear_ram(heal_amount)
+	GameEvents.data_packet_collected.emit()

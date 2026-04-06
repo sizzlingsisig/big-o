@@ -64,6 +64,7 @@ func show_game_over(ram_percentage: float, time_survived: float, reason: String 
 		restart_hint.text = "PRESS SPACE TO RETURN TO MENU · PRESS ESC TO QUIT"
 	
 	visible = true
+	GameEvents.game_over_screen_shown.emit()
 	
 	# Hide HUD if present
 	var hud = get_parent().get_node_or_null("HUD")

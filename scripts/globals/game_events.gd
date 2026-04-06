@@ -26,9 +26,21 @@ signal ram_overflow # Game Over trigger
 @warning_ignore("unused_signal")
 signal complexity_tier_changed(new_tier: PlayerComplexity)
 @warning_ignore("unused_signal")
+signal complexity_upgraded
+@warning_ignore("unused_signal")
+signal complexity_downgraded
+@warning_ignore("unused_signal")
 signal optimization_fragments_updated(current: int, required: int)
 @warning_ignore("unused_signal")
 signal optimization_ready
+@warning_ignore("unused_signal")
+signal data_packet_collected
+@warning_ignore("unused_signal")
+signal garbage_collector_collected
+@warning_ignore("unused_signal")
+signal hotfix_patch_collected
+@warning_ignore("unused_signal")
+signal speed_boost_collected
 
 # --- World Signals ---
 @warning_ignore("unused_signal")
@@ -55,6 +67,14 @@ signal time_frozen_ended
 signal game_state_requested(state: String)
 @warning_ignore("unused_signal")
 signal game_state_changed(state: String)
+@warning_ignore("unused_signal")
+signal game_over_transition
+@warning_ignore("unused_signal")
+signal game_over_screen_shown
+@warning_ignore("unused_signal")
+signal enemy_hit(enemy_name: String)
+@warning_ignore("unused_signal")
+signal heisenberg_teleporting
 
 var _freeze_timer: Timer
 

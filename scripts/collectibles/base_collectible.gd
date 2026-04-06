@@ -116,7 +116,7 @@ func _on_body_entered(body: Node2D) -> void:
 			_is_hovering = true
 			_hover_timer = 0.0
 		else:
-			print("[COLLECT] Pickup! Type: ", data.animation_name if data else "unknown")
+			print("[COLLECT] Pickup! Type: ", str(data.animation_name) if data else "unknown")
 			_trigger_collection(body)
 
 func _on_body_exited(body: Node2D) -> void:

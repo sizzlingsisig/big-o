@@ -143,14 +143,14 @@ func _on_body_entered(body: Node) -> void:
 			body.take_damage(contact_damage)
 		if body.has_method("add_ram"):
 			body.add_ram(ram_damage)
-			
+		GameEvents.enemy_hit.emit(name)
 		die()
-
-func apply_status_effect(effect_type: String, data: Dictionary) -> void:
-	GameEvents.status_effect_applied.emit(effect_type, data)
 
 func _on_screen_exited() -> void:
 	_is_on_screen = false
 
 func _on_screen_entered() -> void:
 	_is_on_screen = true
+
+func apply_status_effect(effect_type: String, data: Dictionary) -> void:
+	GameEvents.status_effect_applied.emit(effect_type, data)

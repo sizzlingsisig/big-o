@@ -17,3 +17,4 @@ func apply_effect(player: Node2D) -> void:
 		var sys_res = player.get_node("SystemResourcesComponent")
 		if sys_res.has_method("clear_ram"):
 			sys_res.clear_ram(ram_clear)
+	GameEvents.garbage_collector_collected.emit()

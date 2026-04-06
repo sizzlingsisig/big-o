@@ -47,6 +47,7 @@ func _trigger_teleport() -> void:
 	if not _target:
 		return
 	_is_teleporting = true
+	GameEvents.heisenberg_teleporting.emit()
 	_teleport_count += 1
 	_teleport_cooldown_timer = teleport_cooldown
 	var attempts = 0

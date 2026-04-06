@@ -16,16 +16,40 @@ var _players_in_dilation: Array = []
 var _current_time_scale: float = 1.0
 var _dilation_cooldown_timer: float = 0.0
 var _is_dilating: bool = false
+var _noise_player: AudioStreamPlayer2D
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var time_dilation_area: Area2D = $GravityArea
 
 func _ready() -> void:
 	super._ready()
+	_setup_noise_audio()
 	
 	if time_dilation_area:
 		time_dilation_area.body_entered.connect(_on_time_dilation_area_entered)
 		time_dilation_area.body_exited.connect(_on_time_dilation_area_exited)
+
+func _setup_noise_audio() -> void:
+	_noise_player = AudioStreamPlayer2D.new()
+	_noise_player.stream = preload("res://assets/audio/infinite_loop_noise.ogg")
+	_noise_player.bus = "Master"
+	_noise_player.autoplay = false
+	add_child(_noise_player)
+	_noise_player.finished.connect(_on_noise_finished)
+
+func _on_noise_finished() -> void:
+	if _is_on_screen and _noise_player:
+		_noise_player.play()
+
+func _on_screen_entered() -> void:
+	super._on_screen_entered()
+	if _noise_player:
+		_noise_player.play()
+
+func _on_screen_exited() -> void:
+	super._on_screen_exited()
+	if _noise_player:
+		_noise_player.stop()
 
 func _process_movement(delta: float) -> void:
 	if not _target:

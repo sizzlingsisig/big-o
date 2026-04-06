@@ -144,7 +144,7 @@ func _hide_ram_warning() -> void:
 	if ram_warning:
 		ram_warning.visible = false
 
-func _on_difficulty_increased(tier: int, time_elapsed: float) -> void:
+func _on_difficulty_increased(tier: int, _time_elapsed: float) -> void:
 	if tier_value:
 		tier_value.text = "TIER " + str(tier)
 		_react_label_change(tier_value)
