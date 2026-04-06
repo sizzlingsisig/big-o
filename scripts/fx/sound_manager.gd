@@ -15,9 +15,8 @@ const SOUND_MENU_HOVER = preload("res://assets/sounds/JDSherbert - Pixel UI SFX 
 const SOUND_MENU_SELECT = preload("res://assets/sounds/JDSherbert - Pixel UI SFX Pack (FREE)/Stereo/wav (HD)/JDSherbert - Pixel UI SFX Pack - Select 1 (Sine).wav")
 const SOUND_MENU_CANCEL = preload("res://assets/sounds/JDSherbert - Pixel UI SFX Pack (FREE)/Stereo/wav (HD)/JDSherbert - Pixel UI SFX Pack - Cancel 1 (Sine).wav")
 
-# Music
-const MUSIC_MENU = preload("res://assets/sounds/Music/Cartoon, Jéja - On & On (feat. Daniel Levi) Electronic Pop NCS - Copyright Free Music - NoCopyrightSounds (128k).ogg")
-const MUSIC_GAME = preload("res://assets/sounds/Music/Kubbi - Digestive biscuit ♫ NO COPYRIGHT 8-bit Music - Free Music (128k).ogg")
+# Music - same track for menu and game
+const MUSIC_MAIN = preload("res://assets/sounds/Music/Cartoon, Jéja - On & On (feat. Daniel Levi) Electronic Pop NCS - Copyright Free Music - NoCopyrightSounds (128k).ogg")
 
 # Music player
 var _music_player: AudioStreamPlayer
@@ -43,39 +42,13 @@ func play_sound(stream: AudioStream, pitch: float = 1.0) -> void:
 	await player.finished
 	player.queue_free()
 
-## Plays the menu music (loops).
-func play_menu_music() -> void:
+## Plays the music (loops) - same for menu and game.
+func play_music() -> void:
 	if _music_player and is_instance_valid(_music_player):
 		return  # Already playing
 	
 	_music_player = AudioStreamPlayer.new()
-	_music_player.stream = MUSIC_MENU
-	_music_player.bus = "Master"
-	_music_player.volume_db = -10.0  # Slightly quieter than SFX
-	_music_player.pitch_scale = 0.8  # Higher pitch
-	_music_player.autoplay = true
-	# Connect finished signal to loop
-	_music_player.finished.connect(_on_music_finished)
-	add_child(_music_player)
-
-func _on_music_finished() -> void:
-	if _music_player and is_instance_valid(_music_player):
-		_music_player.play()  # Loop
-
-## Stops the menu music.
-func stop_menu_music() -> void:
-	if _music_player and is_instance_valid(_music_player):
-		_music_player.stop()
-		_music_player.queue_free()
-		_music_player = null
-
-## Plays the game music (loops).
-func play_game_music() -> void:
-	if _music_player and is_instance_valid(_music_player):
-		return  # Already playing
-	
-	_music_player = AudioStreamPlayer.new()
-	_music_player.stream = MUSIC_GAME
+	_music_player.stream = MUSIC_MAIN
 	_music_player.bus = "Master"
 	_music_player.volume_db = -10.0
 	_music_player.pitch_scale = 0.8
@@ -83,8 +56,12 @@ func play_game_music() -> void:
 	_music_player.finished.connect(_on_music_finished)
 	add_child(_music_player)
 
-## Stops the game music.
-func stop_game_music() -> void:
+func _on_music_finished() -> void:
+	if _music_player and is_instance_valid(_music_player):
+		_music_player.play()  # Loop
+
+## Stops the music.
+func stop_music() -> void:
 	if _music_player and is_instance_valid(_music_player):
 		_music_player.stop()
 		_music_player.queue_free()

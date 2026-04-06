@@ -276,7 +276,7 @@ func _zombie_fork() -> void:
 		var impulse_force: float = minf(current_data.speed * 2.0, 300.0)
 		movement.apply_impulse(launch_dir, impulse_force)
 		
-		clear_ram(20.0)
+		clear_ram(system_resources.current_ram * 0.5)
 		_can_split = false
 		split_timer.start(split_cooldown)
 
@@ -343,10 +343,6 @@ func take_damage(amount: float) -> void:
 		complexity.restore_progress_to_80_percent()
 		_change_state(State.IDLE)
 		return
-	
-	# Only accumulate ONE tier of debt per hit, regardless of damage amount
-	if complexity:
-		complexity.accumulate_debt()
 	
 	ScreenFX.shake(4.0, 0.25)
 	_change_state(State.ERROR)

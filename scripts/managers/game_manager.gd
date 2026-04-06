@@ -35,11 +35,10 @@ func _load_menu() -> void:
 	_cleanup_all_instances()
 	get_tree().paused = false
 	
-	# Stop game music, start menu music
+	# Start music if not already playing
 	var sm = get_node_or_null("/root/SoundManager")
 	if sm:
-		sm.stop_game_music()
-		sm.play_menu_music()
+		sm.play_music()
 	
 	menu_instance = SCENE_MENU.instantiate()
 	add_child(menu_instance)
@@ -51,11 +50,10 @@ func _load_world() -> void:
 	_cleanup_all_instances()
 	get_tree().paused = false
 	
-	# Stop menu music, start game music
+	# Music continues playing (same track for menu and game)
 	var sm = get_node_or_null("/root/SoundManager")
 	if sm:
-		sm.stop_menu_music()
-		sm.play_game_music()
+		sm.play_music()  # Ensures music is playing
 	
 	world_instance = SCENE_WORLD.instantiate()
 	add_child(world_instance)
