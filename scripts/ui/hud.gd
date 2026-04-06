@@ -7,7 +7,6 @@ const SectorGridScript = preload("res://scripts/globals/sector_grid.gd")
 @onready var complexity_value: Label = %ComplexityValue
 @onready var status_value: Label = %StatusValue
 @onready var ram_warning: Label = %RAMDisruptWarning
-@onready var tier_value: Label = %WaveValue
 
 var _player: Player
 var _complexity_manager: ComplexityManager
@@ -19,7 +18,6 @@ func _ready() -> void:
 	GameEvents.ram_critical_reached.connect(_on_ram_full)
 	GameEvents.player_state_changed.connect(_on_player_state_changed)
 	GameEvents.complexity_tier_changed.connect(_on_complexity_changed)
-	GameEvents.difficulty_increased.connect(_on_difficulty_increased)
 	
 	_on_ram_changed(0.0, 100.0)
 	_update_status_display(Player.State.IDLE)
@@ -143,8 +141,3 @@ func _update_glitch_effects() -> void:
 func _hide_ram_warning() -> void:
 	if ram_warning:
 		ram_warning.visible = false
-
-func _on_difficulty_increased(tier: int, _time_elapsed: float) -> void:
-	if tier_value:
-		tier_value.text = "TIER " + str(tier)
-		_react_label_change(tier_value)
